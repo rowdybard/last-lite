@@ -1,11 +1,13 @@
 import { Client } from 'colyseus.js';
 import { WorldState } from '../../shared/types';
+import { FeedMessage } from './text-game';
 
 export class NetworkManager {
   private client: Client;
   private room: any;
   private onStateUpdate?: (state: WorldState) => void;
   private onZoneTransfer?: (data: any) => void;
+  private onFeedMessage?: (message: FeedMessage) => void;
 
   constructor() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -46,6 +48,13 @@ export class NetworkManager {
         console.error('Zone swap error:', data.reason);
       });
 
+      // Listen for feed messages
+      this.room.onMessage('feed', (data: any) => {
+        if (this.onFeedMessage) {
+          this.onFeedMessage(data);
+        }
+      });
+
     } catch (error) {
       console.error('Failed to connect to hub:', error);
     }
@@ -54,6 +63,18 @@ export class NetworkManager {
   sendInput(input: { up: boolean; down: boolean; left: boolean; right: boolean }): void {
     if (this.room) {
       this.room.send('input', input);
+    }
+  }
+
+  sendCommand(command: string): void {
+    if (this.room) {
+      this.room.send('cmd', { text: command });
+    }
+  }
+
+  sendHotkey(hotkeyId: string): void {
+    if (this.room) {
+      this.room.send('hotkey', { id: hotkeyId });
     }
   }
 
@@ -69,6 +90,10 @@ export class NetworkManager {
 
   setOnZoneTransfer(callback: (data: any) => void): void {
     this.onZoneTransfer = callback;
+  }
+
+  setOnFeedMessage(callback: (message: FeedMessage) => void): void {
+    this.onFeedMessage = callback;
   }
 
   disconnect(): void {

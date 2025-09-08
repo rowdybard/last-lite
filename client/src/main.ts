@@ -1,19 +1,11 @@
-import { Game } from './game';
+import { TextGame } from './text-game';
 
-// Initialize the game when the page loads
+// Initialize the text game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-  const canvasElement = document.getElementById('gameCanvas');
-  if (!canvasElement) {
-    console.error('Game canvas not found!');
-    return;
-  }
-  const canvas = canvasElement as unknown as HTMLCanvasElement;
-
-  const game = new Game(canvas);
+  const game = new TextGame();
   
-  // Handle window resize
-  window.addEventListener('resize', () => {
+  // Handle page unload
+  window.addEventListener('beforeunload', () => {
     game.dispose();
-    const newGame = new Game(canvas);
   });
 });

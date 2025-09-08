@@ -27,7 +27,15 @@
     "lint:server": "cd server && npm run lint",
     "lint:client": "cd client && npm run lint",
     "precommit": "npm run lint && npm test",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../e2e && npm install"
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../e2e && npm install",
+    "guard:no3d": "node scripts/ban-3d.mjs",
+    "milestone:m0": "npm run guard:no3d && npm run test:server -- -t M0 && npm run test:client -- -t M0 && npm run e2e -- --grep M0",
+    "milestone:m1": "npm run guard:no3d && npm run test:server -- -t M1 && npm run test:client -- -t M1 && npm run e2e -- --grep M1",
+    "milestone:m2": "npm run guard:no3d && npm run test:server -- -t M2 && npm run test:client -- -t M2 && npm run e2e -- --grep M2",
+    "milestone:m3": "npm run guard:no3d && npm run test:server -- -t M3 && npm run test:client -- -t M3 && npm run e2e -- --grep M3",
+    "milestone:m4": "npm run guard:no3d && npm run test:server -- -t M4 && npm run test:client -- -t M4 && npm run e2e -- --grep M4",
+    "milestone:m5": "npm run guard:no3d && npm run test:server -- -t M5 && npm run test:client -- -t M5 && npm run e2e -- --grep M5",
+    "milestone:m6": "npm run guard:no3d && npm run test:server -- -t M6 && npm run test:client -- -t M6 && npm run e2e -- --grep M6"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

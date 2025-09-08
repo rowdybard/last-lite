@@ -5,105 +5,258 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Last-Lite</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-    }
-
-    #gameCanvas {
-      width: 100vw;
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #00ff00;
       height: 100vh;
-      display: block;
+      overflow: hidden;
     }
 
-    .hud {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 1000;
-    }
-
-    .hud-top {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-    }
-
-    .hud-bottom {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
+    .game-container {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      height: 100vh;
     }
 
-    .player-count {
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 10px;
+    .world-feed {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 2px solid #333;
+      background: #111;
     }
 
-    .zone-info {
-      background: rgba(0, 0, 0, 0.7);
-      color: #44ff44;
-      padding: 8px 12px;
-      border-radius: 5px;
+    .world-feed h2 {
+      margin: 0 0 20px 0;
+      color: #ffff00;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+
+    .feed-line {
+      margin: 5px 0;
+      padding: 2px 0;
       font-size: 14px;
-      font-weight: bold;
+      line-height: 1.4;
     }
 
-    .health-bar, .mana-bar, .gold-display, .xp-bar {
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 5px;
-      font-size: 14px;
+    .feed-line[data-type="info"] {
+      color: #00ffff;
     }
 
-    .health-bar .label {
+    .feed-line[data-type="combat"] {
       color: #ff4444;
     }
 
-    .mana-bar .label {
-      color: #4444ff;
-    }
-
-    .gold-display .label {
+    .feed-line[data-type="loot"] {
       color: #ffaa00;
     }
 
-    .xp-bar .label {
-      color: #44ff44;
+    .feed-line[data-type="quest"] {
+      color: #aa44ff;
     }
 
-    /* Low-spec optimizations */
-    [data-quality="low"] .hud {
+    .feed-line[data-type="error"] {
+      color: #ff0000;
+      font-weight: bold;
+    }
+
+    .feed-timestamp {
+      color: #666;
+      margin-right: 10px;
+    }
+
+    .feed-zone {
+      color: #888;
+      margin-right: 10px;
+    }
+
+    .actions-panel {
+      width: 300px;
+      padding: 20px;
+      background: #0f0f0f;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bars {
+      margin-bottom: 20px;
+    }
+
+    .status-bar {
+      margin: 10px 0;
+      padding: 8px;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 3px;
+    }
+
+    .status-bar .label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .status-bar .value {
+      color: #fff;
+    }
+
+    .health-bar .label { color: #ff4444; }
+    .mana-bar .label { color: #4444ff; }
+    .gold-bar .label { color: #ffaa00; }
+    .xp-bar .label { color: #44ff44; }
+
+    .hotbar {
+      margin-bottom: 20px;
+    }
+
+    .hotbar h3 {
+      margin: 0 0 10px 0;
+      color: #ffff00;
+    }
+
+    .hotbar-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hotbar-button {
+      padding: 10px;
+      background: #333;
+      border: 2px solid #555;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .hotbar-button:hover {
+      background: #444;
+      border-color: #777;
+    }
+
+    .hotbar-button:active {
+      background: #222;
+    }
+
+    .hotbar-button.on-cooldown {
+      background: #222;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .command-prompt {
+      margin-top: auto;
+    }
+
+    .command-prompt h3 {
+      margin: 0 0 10px 0;
+      color: #ffff00;
+    }
+
+    .command-input {
+      width: 100%;
+      padding: 10px;
+      background: #222;
+      border: 2px solid #444;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      border-radius: 3px;
+    }
+
+    .command-input:focus {
+      outline: none;
+      border-color: #00ff00;
+    }
+
+    .command-history {
+      max-height: 100px;
+      overflow-y: auto;
+      margin-bottom: 10px;
       font-size: 12px;
+      color: #666;
     }
 
-    [data-quality="low"] .player-count,
-    [data-quality="low"] .health-bar,
-    [data-quality="low"] .mana-bar,
-    [data-quality="low"] .gold-display,
-    [data-quality="low"] .xp-bar {
-      padding: 6px 10px;
+    .command-history .history-item {
+      padding: 2px 0;
+      cursor: pointer;
+    }
+
+    .command-history .history-item:hover {
+      color: #999;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .game-container {
+        flex-direction: column;
+      }
+      
+      .actions-panel {
+        width: 100%;
+        height: 200px;
+      }
+      
+      .world-feed {
+        border-right: none;
+        border-bottom: 2px solid #333;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <div id="hud"></div>
+  <div class="game-container">
+    <div class="world-feed">
+      <h2>World Feed</h2>
+      <div id="feed-content"></div>
+    </div>
+    
+    <div class="actions-panel">
+      <div class="status-bars">
+        <div class="status-bar health-bar">
+          <span class="label">HP:</span>
+          <span class="value" id="hp-value">100/100</span>
+        </div>
+        <div class="status-bar mana-bar">
+          <span class="label">MP:</span>
+          <span class="value" id="mp-value">50/50</span>
+        </div>
+        <div class="status-bar gold-bar">
+          <span class="label">Gold:</span>
+          <span class="value" id="gold-value">0</span>
+        </div>
+        <div class="status-bar xp-bar">
+          <span class="label">XP:</span>
+          <span class="value" id="xp-value">0/1000</span>
+        </div>
+      </div>
+
+      <div class="hotbar">
+        <h3>Abilities</h3>
+        <div class="hotbar-buttons">
+          <button class="hotbar-button" data-ability="1">1. Strike</button>
+          <button class="hotbar-button" data-ability="2">2. Block</button>
+          <button class="hotbar-button" data-ability="3">3. Charge</button>
+          <button class="hotbar-button" data-ability="4">4. Whirlwind</button>
+        </div>
+      </div>
+
+      <div class="command-prompt">
+        <h3>Command Prompt</h3>
+        <div class="command-history" id="command-history"></div>
+        <input type="text" class="command-input" id="command-input" placeholder="Type commands like: go north, attack boar, cast fireburst..." autocomplete="off">
+      </div>
+    </div>
+  </div>
+  
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
