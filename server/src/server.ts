@@ -20,7 +20,28 @@ export async function createServer(): Promise<any> {
   });
 
   // Serve static files from client build
-  const clientBuildPath = path.join(__dirname, '../../client/dist');
+  // Try multiple possible paths for deployment flexibility
+  const possiblePaths = [
+    path.join(__dirname, '../../client/dist'),  // Local development
+    path.join(__dirname, '../client/dist'),     // Alternative deployment
+    path.join(process.cwd(), 'client/dist'),    // From project root
+    path.join(process.cwd(), 'src/client/dist') // Render deployment
+  ];
+  
+  let clientBuildPath = possiblePaths.find(p => {
+    try {
+      return require('fs').existsSync(p);
+    } catch {
+      return false;
+    }
+  });
+  
+  if (!clientBuildPath) {
+    console.error('Client build not found. Tried paths:', possiblePaths);
+    clientBuildPath = possiblePaths[0]; // Fallback to first path
+  }
+  
+  console.log('Serving client from:', clientBuildPath);
   app.use(express.static(clientBuildPath));
 
   // SPA fallback - serve index.html for all other routes

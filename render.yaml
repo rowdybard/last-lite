@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: last-lite
+    env: node
+    plan: free
+    buildCommand: |
+      npm ci
+      cd server && npm ci
+      cd ../client && npm ci
+      cd .. && npm run build
+    startCommand: cd server && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TICK_RATE
+        value: 60
+      - key: WORLD_BOUNDS
+        value: 20
+      - key: MAX_ROOM_CCU
+        value: 100
+    healthCheckPath: /healthz
