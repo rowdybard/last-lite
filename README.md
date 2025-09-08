@@ -1,6 +1,6 @@
 # Last-Lite Browser MMO
 
-A Last Chaos-flavored browser MMO built with TypeScript, Colyseus, and Babylon.js, following Test-Driven Development principles.
+A Last Chaos-flavored browser MMO built with TypeScript, Colyseus, and text-based UI, following Test-Driven Development principles.
 
 ## 🎯 Project Overview
 
@@ -12,7 +12,7 @@ Last-Lite is a lightweight browser MMO featuring:
 
 ## 🏗️ Architecture
 
-- **Client**: Vite + TypeScript + Babylon.js + colyseus.js
+- **Client**: Vite + TypeScript + text-based UI + colyseus.js
 - **Server**: Node.js + TypeScript + Colyseus + Express
 - **Testing**: Vitest (unit/integration) + Playwright (E2E)
 - **Persistence**: In-memory (v0.1) → Postgres + Prisma (M5)
@@ -67,7 +67,7 @@ npm start
 ### M0 - Vertical Slice ✅
 - [x] Basic client-server connection
 - [x] Player movement with WASD/Arrow keys
-- [x] Quality profile detection (Chromebook optimization)
+- [x] Text-based UI with command prompt
 - [x] HUD with player count display
 - [x] Server-authoritative movement system
 
@@ -159,12 +159,11 @@ CLIENT_MAX_ENTITIES=80    # Max entities per client
 
 ```
 last-lite/
-├── client/                 # Vite + Babylon.js client
+├── client/                 # Vite + text-based client
 │   ├── src/
-│   │   ├── game.ts        # Main game class
-│   │   ├── network.ts     # Colyseus client
-│   │   ├── ui/            # HUD and UI components
-│   │   └── utils/         # Utility functions
+│   │   ├── text-game.ts   # Main text game class
+│   │   ├── main.ts        # Entry point
+│   │   └── ui/            # Feed system and UI components
 │   └── __tests__/         # Client unit tests
 ├── server/                 # Node.js + Colyseus server
 │   ├── src/
