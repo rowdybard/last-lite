@@ -4,10 +4,38 @@ services:
     env: node
     plan: free
     buildCommand: |
-      npm ci
-      cd server && npm ci
-      cd ../client && npm ci
-      cd .. && npm run build
+      echo "=== Last-Lite Build Process ==="
+      echo "Working directory: $(pwd)"
+      echo "Contents:"
+      ls -la
+      
+      echo "=== Installing dependencies ==="
+      npm install
+      
+      echo "=== Building server ==="
+      cd server
+      npm install
+      npm run build
+      echo "Server build complete. Contents:"
+      ls -la dist/
+      cd ..
+      
+      echo "=== Building client ==="
+      cd client  
+      npm install
+      npm run build
+      echo "Client build complete. Contents:"
+      ls -la dist/
+      cd ..
+      
+      echo "=== Build verification ==="
+      echo "Final structure:"
+      ls -la
+      echo "Server dist:"
+      ls -la server/dist/
+      echo "Client dist:"
+      ls -la client/dist/
+      echo "=== Build complete ==="
     startCommand: cd server && node dist/index.js
     envVars:
       - key: NODE_ENV
