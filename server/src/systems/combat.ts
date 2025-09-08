@@ -1,4 +1,4 @@
-import { Player, Entity, Ability, CombatEvent, CombatEventType, Position } from '@shared/types';
+import { Player, Entity, Ability, CombatEvent, CombatEventType, Position } from '../shared/types';
 
 export interface CastResult {
   success: boolean;

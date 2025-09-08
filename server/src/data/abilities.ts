@@ -1,4 +1,4 @@
-import { Ability, CharacterClass, AbilityType, AbilityEffect } from '@shared/types';
+import { Ability, CharacterClass, AbilityType, AbilityEffect } from '../shared/types';
 
 export const ABILITIES: Ability[] = [
   // Warrior Abilities

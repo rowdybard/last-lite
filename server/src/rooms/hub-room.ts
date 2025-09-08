@@ -1,5 +1,5 @@
 import { BaseRoom } from './base-room.js';
-import { Player, CharacterClass, Zone, ZoneType } from '@shared/types';
+import { Player, CharacterClass, Zone, ZoneType } from '../shared/types';
 
 export class HubRoom extends BaseRoom {
   protected createPlayer(sessionId: string, options: any): Player {

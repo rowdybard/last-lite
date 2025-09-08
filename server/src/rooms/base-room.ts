@@ -1,5 +1,5 @@
 import { Room, Client } from 'colyseus';
-import { WorldState, Player, Entity, Drop } from '@shared/types';
+import { WorldState, Player, Entity, Drop } from '../shared/types';
 import { MovementSystem } from '../systems/movement.js';
 import { ZoneService } from '../services/zone-service.js';
 import { RoomTransferService } from '../services/room-transfer-service.js';

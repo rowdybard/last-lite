@@ -1,4 +1,4 @@
-import { Zone, Door, Position, ZoneType } from '@shared/types';
+import { Zone, Door, Position, ZoneType } from '../shared/types';
 
 export interface DoorValidationResult {
   valid: boolean;

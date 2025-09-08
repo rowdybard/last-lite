@@ -1,4 +1,4 @@
-import { Entity, AIState, Player, Position } from '@shared/types';
+import { Entity, AIState, Player, Position } from '../shared/types';
 
 export class AISystem {
   private readonly AGGRO_RADIUS = 8.0;

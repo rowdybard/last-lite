@@ -1,4 +1,4 @@
-import { Player } from '@shared/types';
+import { Player } from '../shared/types';
 
 export interface MovementConfig {
   bound: number;

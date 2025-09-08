@@ -1,5 +1,5 @@
 import { BaseRoom } from './base-room.js';
-import { Player, CharacterClass } from '@shared/types';
+import { Player, CharacterClass } from '../shared/types';
 
 export class FieldRoom extends BaseRoom {
   protected createPlayer(sessionId: string, options: any): Player {
