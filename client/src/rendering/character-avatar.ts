@@ -2,10 +2,10 @@ import * as BABYLON from '@babylonjs/core';
 import { Player } from '@shared/types';
 
 export class CharacterAvatar {
-  private bodyMesh: BABYLON.Mesh;
-  private headMesh: BABYLON.Mesh;
-  private nameplateTexture: BABYLON.DynamicTexture;
-  private nameplateMaterial: BABYLON.StandardMaterial;
+  private bodyMesh!: BABYLON.Mesh;
+  private headMesh!: BABYLON.Mesh;
+  private nameplateTexture!: BABYLON.DynamicTexture;
+  private nameplateMaterial!: BABYLON.StandardMaterial;
   private player: Player;
   private scene: BABYLON.Scene;
 
@@ -86,7 +86,7 @@ export class CharacterAvatar {
     
     context.fillStyle = 'white';
     context.font = 'bold 24px Arial';
-    context.textAlign = 'center';
+    (context as any).textAlign = 'center';
     context.fillText(this.player.name, 128, 40);
     
     this.nameplateTexture.update();
