@@ -1,5 +1,5 @@
 import { Client } from 'colyseus.js';
-import { WorldState } from '@shared/types';
+import { WorldState } from '../../shared/types';
 
 export class NetworkManager {
   private client: Client;

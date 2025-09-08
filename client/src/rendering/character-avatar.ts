@@ -1,5 +1,5 @@
 import * as BABYLON from '@babylonjs/core';
-import { Player } from '@shared/types';
+import { Player } from '../../../shared/types';
 
 export class CharacterAvatar {
   private bodyMesh!: BABYLON.Mesh;

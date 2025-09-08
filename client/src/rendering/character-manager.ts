@@ -1,5 +1,5 @@
 import { CharacterAvatar } from './character-avatar';
-import { Player, WorldState } from '@shared/types';
+import { Player, WorldState } from '../../../shared/types';
 import * as BABYLON from '@babylonjs/core';
 
 export class CharacterManager {

@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core';
 import { getQualityProfile } from './utils/quality-profile';
 import { renderHUD, GameState } from './ui/hud';
 import { NetworkManager } from './network';
-import { WorldState } from '@shared/types';
+import { WorldState } from '../../shared/types';
 import { CharacterManager } from './rendering/character-manager';
 
 export class Game {
