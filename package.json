@@ -27,7 +27,9 @@
     "lint:server": "cd server && npm run lint",
     "lint:client": "cd client && npm run lint",
     "precommit": "npm run lint && npm test",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../e2e && npm install"
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../e2e && npm install",
+    "guard:no3d": "node scripts/ban-3d.mjs",
+    "milestone:m0": "npm run guard:no3d && npm run test:server -- -t M0 && npm run test:client -- -t M0 && npm run e2e -- --grep M0"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
