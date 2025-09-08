@@ -1,0 +1,14 @@
+{
+  "name": "last-lite-e2e",
+  "version": "0.1.0",
+  "description": "Last-Lite end-to-end tests with Playwright",
+  "scripts": {
+    "e2e": "node run-e2e.mjs",
+    "e2e:headed": "node run-e2e.mjs --headed",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "playwright": "^1.40.0"
+  }
+}

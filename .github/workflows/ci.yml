@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm run install:all
+    
+    - name: Lint code
+      run: npm run lint
+    
+    - name: Run unit tests
+      run: npm test
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Install Playwright browsers
+      run: cd e2e && npm run install:browsers
+    
+    - name: Run E2E tests
+      run: npm run e2e
+      env:
+        CI: true
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./server/coverage/lcov.info,./client/coverage/lcov.info
+        fail_ci_if_error: false

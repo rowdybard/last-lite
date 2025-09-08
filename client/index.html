@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Last-Lite</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+    }
+
+    #gameCanvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .hud-top {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .hud-bottom {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .player-count {
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .zone-info {
+      background: rgba(0, 0, 0, 0.7);
+      color: #44ff44;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .health-bar, .mana-bar, .gold-display, .xp-bar {
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .health-bar .label {
+      color: #ff4444;
+    }
+
+    .mana-bar .label {
+      color: #4444ff;
+    }
+
+    .gold-display .label {
+      color: #ffaa00;
+    }
+
+    .xp-bar .label {
+      color: #44ff44;
+    }
+
+    /* Low-spec optimizations */
+    [data-quality="low"] .hud {
+      font-size: 12px;
+    }
+
+    [data-quality="low"] .player-count,
+    [data-quality="low"] .health-bar,
+    [data-quality="low"] .mana-bar,
+    [data-quality="low"] .gold-display,
+    [data-quality="low"] .xp-bar {
+      padding: 6px 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="hud"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
