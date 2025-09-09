@@ -69,8 +69,14 @@ export abstract class BaseRoom extends Room<WorldState> {
       const player = this.createPlayer(client.sessionId, options);
       this.state.players[client.sessionId] = player;
       
-      // Send initial state
-      client.send('state', this.state);
+      // Send initial state (serialize manually to avoid Map issues)
+      const serializedState = {
+        players: this.state.players,
+        entities: this.state.entities,
+        drops: this.state.drops,
+        timestamp: this.state.timestamp
+      };
+      client.send('state', serializedState);
       console.log(`Player ${player.name} created and state sent`);
     } catch (error) {
       console.error(`Error in onJoin for client ${client.sessionId}:`, error);
@@ -800,7 +806,7 @@ export abstract class BaseRoom extends Room<WorldState> {
           message += `\n${quest.title}:\n`;
           message += `  ${currentStep.title}\n`;
           currentStep.objectives.forEach(objective => {
-            const currentProgress = progress.objectives.get(objective.id) || 0;
+            const currentProgress = progress.objectives[objective.id] || 0;
             message += `  - ${objective.description}: ${currentProgress}/${objective.count}\n`;
           });
         }

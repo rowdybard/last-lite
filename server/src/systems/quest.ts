@@ -3,7 +3,7 @@ import { Player, Quest, QuestState, QuestStep, QuestObjective, QuestReward } fro
 export interface QuestProgress {
   questId: string;
   currentStep: number;
-  objectives: Map<string, number>; // objectiveId -> progress
+  objectives: Record<string, number>; // objectiveId -> progress
   completed: boolean;
   startedAt: number;
   completedAt?: number;
@@ -228,7 +228,7 @@ export class QuestSystem {
     const progress: QuestProgress = {
       questId,
       currentStep: 0,
-      objectives: new Map(),
+      objectives: {},
       completed: false,
       startedAt: Date.now()
     };
@@ -237,7 +237,7 @@ export class QuestSystem {
     if (quest.steps.length > 0) {
       const firstStep = quest.steps[0];
       for (const objective of firstStep.objectives) {
-        progress.objectives.set(objective.id, 0);
+        progress.objectives[objective.id] = 0;
       }
     }
 
@@ -262,9 +262,9 @@ export class QuestSystem {
 
       for (const objective of currentStep.objectives) {
         if (objective.type === objectiveType && objective.target === target) {
-          const currentProgress = progress.objectives.get(objective.id) || 0;
+          const currentProgress = progress.objectives[objective.id] || 0;
           const newProgress = Math.min(currentProgress + count, objective.count);
-          progress.objectives.set(objective.id, newProgress);
+          progress.objectives[objective.id] = newProgress;
 
           // Check if step is complete
           if (this.isStepComplete(progress, currentStep)) {
@@ -277,7 +277,7 @@ export class QuestSystem {
 
   private isStepComplete(progress: QuestProgress, step: QuestStep): boolean {
     for (const objective of step.objectives) {
-      const currentProgress = progress.objectives.get(objective.id) || 0;
+      const currentProgress = progress.objectives[objective.id] || 0;
       if (currentProgress < objective.count) {
         return false;
       }
@@ -300,7 +300,7 @@ export class QuestSystem {
       // Initialize objectives for next step
       const nextStep = quest.steps[progress.currentStep];
       for (const objective of nextStep.objectives) {
-        progress.objectives.set(objective.id, 0);
+        progress.objectives[objective.id] = 0;
       }
     }
   }
