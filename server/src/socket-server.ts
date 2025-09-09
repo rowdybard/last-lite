@@ -43,6 +43,37 @@ export class SocketGameServer {
   private setupRoutes(): void {
     const clientDistPath = path.join(__dirname, '../../client/dist');
     console.log('Client dist path:', clientDistPath);
+    console.log('__dirname:', __dirname);
+    console.log('Current working directory:', process.cwd());
+    
+    // Check if client dist directory exists
+    const fs = require('fs');
+    if (fs.existsSync(clientDistPath)) {
+      console.log('✅ Client dist directory exists');
+      const files = fs.readdirSync(clientDistPath);
+      console.log('Files in client/dist:', files);
+    } else {
+      console.log('❌ Client dist directory does not exist!');
+      console.log('Trying alternative paths...');
+      
+      // Try alternative paths
+      const altPaths = [
+        path.join(process.cwd(), 'client/dist'),
+        path.join(process.cwd(), 'src/client/dist'),
+        path.join(__dirname, '../../../client/dist'),
+        path.join(__dirname, '../../../../client/dist')
+      ];
+      
+      for (const altPath of altPaths) {
+        console.log('Checking:', altPath);
+        if (fs.existsSync(altPath)) {
+          console.log('✅ Found client dist at:', altPath);
+          const files = fs.readdirSync(altPath);
+          console.log('Files in alternative path:', files);
+          break;
+        }
+      }
+    }
     
     // Serve static files
     this.app.use(express.static(clientDistPath));
@@ -52,6 +83,7 @@ export class SocketGameServer {
       console.log('Serving homepage...');
       const homepagePath = path.join(clientDistPath, 'homepage.html');
       console.log('Homepage path:', homepagePath);
+      console.log('Homepage exists:', fs.existsSync(homepagePath));
       res.sendFile(homepagePath);
     });
     
@@ -60,6 +92,7 @@ export class SocketGameServer {
       console.log('Serving game.html with params:', req.query);
       const gamePath = path.join(clientDistPath, 'polished-game.html');
       console.log('Game path:', gamePath);
+      console.log('Game file exists:', fs.existsSync(gamePath));
       res.sendFile(gamePath);
     });
     

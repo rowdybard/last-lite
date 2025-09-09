@@ -91,6 +91,20 @@ try {
   console.log(`📁 Server dist: ${serverDist}`);
   console.log(`📁 Client dist: ${clientDist}`);
   console.log('✅ HTML files verified in dist directory');
+  
+  // List all files in client/dist for debugging
+  console.log('📋 Files in client/dist:');
+  const clientDistFiles = fs.readdirSync(clientDist);
+  clientDistFiles.forEach(file => {
+    const filePath = path.join(clientDist, file);
+    const stats = fs.statSync(filePath);
+    console.log(`  - ${file} (${stats.isDirectory() ? 'dir' : 'file'})`);
+  });
+  
+  // Show the exact paths the server will look for
+  console.log('🔍 Server will look for files at:');
+  console.log(`  - Homepage: ${path.join(clientDist, 'homepage.html')}`);
+  console.log(`  - Game: ${path.join(clientDist, 'polished-game.html')}`);
 
 } catch (error) {
   console.error('❌ Build failed:', error.message);
