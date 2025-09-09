@@ -244,12 +244,37 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
         }
 
         .class-card:hover {
             border-color: #ffd700;
             background: rgba(255, 215, 0, 0.1);
             transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .class-card:hover::before {
+            left: 100%;
+        }
+
+        .class-card.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
         }
 
         .class-card h3 {
@@ -539,18 +564,41 @@
         }
 
         function register() {
-            const username = document.getElementById('reg-username').value;
+            const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirm = document.getElementById('reg-confirm').value;
-            const characterName = document.getElementById('character-name').value;
+            const characterName = document.getElementById('character-name').value.trim();
 
-            if (!username || !password || !characterName) {
-                showError('Please fill in all fields');
+            // Clear previous errors
+            clearErrors();
+
+            // Validation
+            if (!username) {
+                showError('Username is required');
                 return;
             }
-
+            if (username.length < 3) {
+                showError('Username must be at least 3 characters');
+                return;
+            }
+            if (!password) {
+                showError('Password is required');
+                return;
+            }
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
             if (password !== confirm) {
                 showError('Passwords do not match');
+                return;
+            }
+            if (!characterName) {
+                showError('Character name is required');
+                return;
+            }
+            if (characterName.length < 2) {
+                showError('Character name must be at least 2 characters');
                 return;
             }
 
@@ -569,6 +617,33 @@
                 showError('Registration data not found. Please try again.');
                 return;
             }
+
+            // Clear any previous errors
+            clearErrors();
+
+            // Validate class selection
+            const validClasses = ['Warrior', 'Mage', 'Rogue', 'Cleric'];
+            if (!validClasses.includes(characterClass)) {
+                showError('Invalid class selected');
+                return;
+            }
+
+            // Remove previous selection
+            document.querySelectorAll('.class-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            event.target.closest('.class-card').classList.add('selected');
+
+            // Show loading state
+            showSuccess(`Creating ${characterClass} character...`);
+
+            // Disable all class cards during registration
+            document.querySelectorAll('.class-card').forEach(card => {
+                card.style.pointerEvents = 'none';
+                card.style.opacity = '0.5';
+            });
 
             socket.emit('register', { 
                 ...window.registrationData,
@@ -720,11 +795,33 @@
         }
 
         function enterGame() {
-            if (currentUser) {
-                // Redirect to the game with user data
-                const gameUrl = `/game.html?user=${encodeURIComponent(JSON.stringify(currentUser))}`;
-                window.location.href = gameUrl;
+            if (!currentUser) {
+                showError('You must be logged in to enter the game');
+                return;
             }
+
+            // Validate user data
+            if (!currentUser.characterName || !currentUser.characterClass) {
+                showError('Character data is missing. Please create a character first.');
+                return;
+            }
+
+            // Show loading state
+            showSuccess('Entering the game world...');
+
+            // Redirect to the game with user data
+            const gameUrl = `/game.html?user=${encodeURIComponent(JSON.stringify(currentUser))}`;
+            
+            // Add a small delay to show the success message
+            setTimeout(() => {
+                window.location.href = gameUrl;
+            }, 1000);
+        }
+
+        function clearErrors() {
+            // Remove any existing error messages
+            const existingErrors = document.querySelectorAll('.error');
+            existingErrors.forEach(error => error.remove());
         }
 
         function showError(message) {

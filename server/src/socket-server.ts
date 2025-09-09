@@ -45,11 +45,13 @@ export class SocketGameServer {
     
     // Serve homepage
     this.app.get('/', (req, res) => {
+      console.log('Serving homepage...');
       res.sendFile('homepage.html', { root: '../client/dist' });
     });
     
     // Serve game
     this.app.get('/game.html', (req, res) => {
+      console.log('Serving game.html with params:', req.query);
       res.sendFile('polished-game.html', { root: '../client/dist' });
     });
     
