@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WorldState = exports.BuffType = exports.QuestStepType = exports.ZoneType = exports.CombatEventType = exports.AbilityEffect = exports.AbilityType = exports.Rarity = exports.AIState = exports.EntityType = exports.CharacterClass = void 0;
+exports.WorldState = exports.BuffType = exports.QuestStepType = exports.ZoneType = exports.CombatEventType = exports.AbilityEffect = exports.AbilityType = exports.ItemType = exports.Rarity = exports.AIState = exports.EntityType = exports.CharacterClass = void 0;
 // Enums
 var CharacterClass;
 (function (CharacterClass) {
@@ -11,6 +11,8 @@ var CharacterClass;
 var EntityType;
 (function (EntityType) {
     EntityType["Mob"] = "mob";
+    EntityType["Npc"] = "npc";
+    EntityType["Item"] = "item";
     EntityType["Door"] = "door";
     EntityType["Vendor"] = "vendor";
     EntityType["Pet"] = "pet";
@@ -31,6 +33,16 @@ var Rarity;
     Rarity["Rare"] = "Rare";
     Rarity["Epic"] = "Epic";
 })(Rarity || (exports.Rarity = Rarity = {}));
+var ItemType;
+(function (ItemType) {
+    ItemType["Weapon"] = "weapon";
+    ItemType["Armor"] = "armor";
+    ItemType["Accessory"] = "accessory";
+    ItemType["Consumable"] = "consumable";
+    ItemType["Tool"] = "tool";
+    ItemType["Quest"] = "quest";
+    ItemType["Misc"] = "misc";
+})(ItemType || (exports.ItemType = ItemType = {}));
 var AbilityType;
 (function (AbilityType) {
     AbilityType["Melee"] = "melee";

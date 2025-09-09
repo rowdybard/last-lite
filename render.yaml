@@ -31,3 +31,9 @@ services:
       - key: MAX_ROOM_CCU
         value: 100
     healthCheckPath: /healthz
+
+  - type: pserv
+    name: last-lite-db
+    plan: free
+    env: postgresql
+    region: oregon

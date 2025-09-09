@@ -26,17 +26,25 @@ export interface Player {
   maxMp: number;
   gold: number;
   buffs: Buff[];
+  debuffs: Buff[];
   lastGcd: number;
   abilityCooldowns: Map<string, number>;
+  inventory: InventoryItem[];
+  lastActivity: number;
 }
 
 export interface Entity {
   id: string;
+  name: string;
   type: EntityType;
   pos: Position;
+  vel: Velocity;
+  dir: number;
+  anim: string;
   hp: number;
   maxHp: number;
-  aiState: AIState;
+  level: number;
+  aiState: EntityAIState;
   spawnPos?: Position;
   leashDistance?: number;
 }
@@ -59,6 +67,8 @@ export enum CharacterClass {
 
 export enum EntityType {
   Mob = 'mob',
+  Npc = 'npc',
+  Item = 'item',
   Door = 'door',
   Vendor = 'vendor',
   Pet = 'pet',
@@ -78,6 +88,16 @@ export enum Rarity {
   Uncommon = 'Uncommon',
   Rare = 'Rare',
   Epic = 'Epic'
+}
+
+export enum ItemType {
+  Weapon = 'weapon',
+  Armor = 'armor',
+  Accessory = 'accessory',
+  Consumable = 'consumable',
+  Tool = 'tool',
+  Quest = 'quest',
+  Misc = 'misc'
 }
 
 // Ability System
@@ -187,18 +207,38 @@ export interface QuestState {
 
 export interface Quest {
   id: string;
-  name: string;
+  title: string;
   description: string;
+  type: string;
+  level: number;
   steps: QuestStep[];
+  prerequisites: string[];
+  repeatable: boolean;
 }
 
 export interface QuestStep {
   id: string;
-  type: QuestStepType;
+  title: string;
   description: string;
-  target?: string;
-  count?: number;
-  completed: boolean;
+  objectives: QuestObjective[];
+  rewards: QuestReward[];
+}
+
+export interface QuestObjective {
+  id: string;
+  type: string;
+  target: string;
+  count: number;
+  description: string;
+}
+
+export interface QuestReward {
+  type: string;
+  amount?: number;
+  itemId?: string;
+  quantity?: number;
+  petType?: string;
+  level?: number;
 }
 
 export enum QuestStepType {
@@ -261,4 +301,21 @@ export interface QualityProfile {
   shadowsEnabled: boolean;
   postProcessingEnabled: boolean;
   maxEntities: number;
+}
+
+// Additional interfaces for persistence
+export interface InventoryItem {
+  id: string;
+  name: string;
+  type: ItemType;
+  rarity: Rarity;
+  level: number;
+  quantity: number;
+  value: number;
+}
+
+export interface EntityAIState {
+  current: string;
+  target?: string;
+  lastUpdate: number;
 }

@@ -77,6 +77,20 @@ export class TextGame {
         this.updateGameState(state);
       });
 
+      // Listen for zone transfer messages
+      this.room.onMessage('zone_transfer', (data: any) => {
+        this.handleZoneTransfer(data);
+      });
+
+      // Listen for zone swap errors
+      this.room.onMessage('zone_swap_error', (data: any) => {
+        this.feedSystem.addEntry({
+          at: Date.now(),
+          text: `Zone transfer failed: ${data.reason}`,
+          type: 'error'
+        });
+      });
+
       // Listen for errors
       this.room.onError((code: number, message: string) => {
         this.feedSystem.addEntry({
@@ -210,12 +224,98 @@ export class TextGame {
     this.updateUI();
   }
 
+  private handleZoneTransfer(data: any): void {
+    const { targetZone, payload } = data;
+    
+    // Update game state with transfer payload
+    this.updateGameState(payload);
+    
+    // Update zone ID
+    this.gameState.zoneId = targetZone;
+    
+    // Leave current room and connect to new zone
+    if (this.room) {
+      this.room.leave();
+    }
+    
+    // Connect to new zone
+    this.connectToZone(targetZone, payload);
+    
+    // Show transfer message
+    this.feedSystem.addEntry({
+      at: Date.now(),
+      text: `Transferring to ${this.getZoneDisplayName(targetZone)}...`,
+      type: 'info'
+    });
+  }
+
+  private async connectToZone(zoneId: string, payload: any): Promise<void> {
+    try {
+      this.room = await this.client.joinOrCreate(zoneId, {
+        name: 'TestPlayer',
+        class: 'Warrior',
+        ...payload
+      });
+
+      console.log(`Connected to zone: ${zoneId}`);
+
+      // Re-setup message listeners
+      this.room.onMessage('feed', (entries: FeedEntry[]) => {
+        this.feedSystem.addEntries(entries);
+      });
+
+      this.room.onMessage('state', (state: any) => {
+        this.updateGameState(state);
+      });
+
+      this.room.onMessage('zone_transfer', (data: any) => {
+        this.handleZoneTransfer(data);
+      });
+
+      this.room.onMessage('zone_swap_error', (data: any) => {
+        this.feedSystem.addEntry({
+          at: Date.now(),
+          text: `Zone transfer failed: ${data.reason}`,
+          type: 'error'
+        });
+      });
+
+      this.room.onError((code: number, message: string) => {
+        this.feedSystem.addEntry({
+          at: Date.now(),
+          text: `Connection error: ${message}`,
+          type: 'error'
+        });
+      });
+
+      // Show success message
+      this.feedSystem.addEntry({
+        at: Date.now(),
+        text: `Welcome to ${this.getZoneDisplayName(zoneId)}!`,
+        type: 'info'
+      });
+
+    } catch (error) {
+      this.feedSystem.addEntry({
+        at: Date.now(),
+        text: `Failed to connect to zone: ${error}`,
+        type: 'error'
+      });
+    }
+  }
+
+  private getZoneDisplayName(zoneId: string): string {
+    if (zoneId === 'world:hub') return 'Hub';
+    if (zoneId.startsWith('world:field:')) return 'Field';
+    if (zoneId.startsWith('world:dungeon:')) return 'Dungeon';
+    return zoneId;
+  }
+
   private updateUI(): void {
     // Update zone
     const zoneElement = document.getElementById('currentZone');
     if (zoneElement) {
-      const zoneName = this.gameState.zoneId === 'world:hub' ? 'Hub' : 'Field';
-      zoneElement.textContent = zoneName;
+      zoneElement.textContent = this.getZoneDisplayName(this.gameState.zoneId);
     }
 
     // Update HP

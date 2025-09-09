@@ -28,10 +28,15 @@ export interface Player {
 }
 export interface Entity {
     id: string;
+    name: string;
     type: EntityType;
     pos: Position;
+    vel: Velocity;
+    dir: number;
+    anim: string;
     hp: number;
     maxHp: number;
+    level: number;
     aiState: AIState;
     spawnPos?: Position;
     leashDistance?: number;
@@ -51,6 +56,8 @@ export declare enum CharacterClass {
 }
 export declare enum EntityType {
     Mob = "mob",
+    Npc = "npc",
+    Item = "item",
     Door = "door",
     Vendor = "vendor",
     Pet = "pet",
@@ -68,6 +75,15 @@ export declare enum Rarity {
     Uncommon = "Uncommon",
     Rare = "Rare",
     Epic = "Epic"
+}
+export declare enum ItemType {
+    Weapon = "weapon",
+    Armor = "armor",
+    Accessory = "accessory",
+    Consumable = "consumable",
+    Tool = "tool",
+    Quest = "quest",
+    Misc = "misc"
 }
 export interface Ability {
     id: string;

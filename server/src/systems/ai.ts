@@ -32,20 +32,20 @@ export class AISystem {
     }
 
     // State machine
-    switch (entity.aiState) {
-      case AIState.Idle:
+    switch (entity.aiState.current) {
+      case 'idle':
         this.handleIdle(entity, nearestPlayer, distanceToPlayer);
         break;
-      case AIState.Alert:
+      case 'alert':
         this.handleAlert(entity, nearestPlayer, distanceToPlayer);
         break;
-      case AIState.Chase:
+      case 'chase':
         this.handleChase(entity, nearestPlayer, distanceToPlayer, deltaTime);
         break;
-      case AIState.Attack:
+      case 'attack':
         this.handleAttack(entity, nearestPlayer, distanceToPlayer);
         break;
-      case AIState.Reset:
+      case 'reset':
         this.handleReset(entity, deltaTime);
         break;
     }
@@ -70,17 +70,17 @@ export class AISystem {
 
   private handleIdle(entity: Entity, player: Player, distance: number): void {
     if (distance <= this.AGGRO_RADIUS) {
-      entity.aiState = AIState.Alert;
+      entity.aiState = { current: 'alert', lastUpdate: Date.now() };
     }
   }
 
   private handleAlert(entity: Entity, player: Player, distance: number): void {
     if (distance > this.AGGRO_RADIUS) {
-      entity.aiState = AIState.Idle;
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
     } else if (distance <= this.MELEE_RANGE) {
-      entity.aiState = AIState.Attack;
+      entity.aiState = { current: 'attack', lastUpdate: Date.now() };
     } else {
-      entity.aiState = AIState.Chase;
+      entity.aiState = { current: 'chase', lastUpdate: Date.now() };
     }
   }
 
@@ -89,15 +89,15 @@ export class AISystem {
     if (entity.leashDistance && entity.spawnPos) {
       const distanceToSpawn = this.calculateDistance(entity.pos, entity.spawnPos);
       if (distanceToSpawn > entity.leashDistance) {
-        entity.aiState = AIState.Reset;
+        entity.aiState = { current: 'reset', lastUpdate: Date.now() };
         return;
       }
     }
 
     if (distance > this.AGGRO_RADIUS) {
-      entity.aiState = AIState.Idle;
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
     } else if (distance <= this.MELEE_RANGE) {
-      entity.aiState = AIState.Attack;
+      entity.aiState = { current: 'attack', lastUpdate: Date.now() };
     } else {
       // Move towards player
       this.moveTowards(entity, player.pos, deltaTime);
@@ -106,14 +106,14 @@ export class AISystem {
 
   private handleAttack(entity: Entity, player: Player, distance: number): void {
     if (distance > this.MELEE_RANGE) {
-      entity.aiState = AIState.Chase;
+      entity.aiState = { current: 'chase', lastUpdate: Date.now() };
     }
     // In a real implementation, this would trigger attack animations and damage
   }
 
   private handleReset(entity: Entity, deltaTime: number): void {
     if (!entity.spawnPos) {
-      entity.aiState = AIState.Idle;
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
       return;
     }
 
@@ -122,7 +122,7 @@ export class AISystem {
     if (distanceToSpawn < 0.5) {
       // Reached spawn, reset HP and go to idle
       entity.hp = entity.maxHp;
-      entity.aiState = AIState.Idle;
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
     } else {
       // Move towards spawn
       this.moveTowards(entity, entity.spawnPos, deltaTime);
@@ -130,13 +130,13 @@ export class AISystem {
   }
 
   private handleLeash(entity: Entity, deltaTime: number): void {
-    entity.aiState = AIState.Reset;
+    entity.aiState = { current: 'reset', lastUpdate: Date.now() };
     this.handleReset(entity, deltaTime);
   }
 
   private handleNoPlayers(entity: Entity, deltaTime: number): void {
-    if (entity.aiState !== AIState.Idle && entity.spawnPos) {
-      entity.aiState = AIState.Reset;
+    if (entity.aiState.current !== 'idle' && entity.spawnPos) {
+      entity.aiState = { current: 'reset', lastUpdate: Date.now() };
       this.handleReset(entity, deltaTime);
     }
   }

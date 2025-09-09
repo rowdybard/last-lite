@@ -19,8 +19,11 @@ export class HubRoom extends BaseRoom {
       maxMp: 50,
       gold: 0,
       buffs: [],
+      debuffs: [],
       lastGcd: 0,
       abilityCooldowns: new Map(),
+      inventory: [],
+      lastActivity: Date.now(),
     };
   }
 
