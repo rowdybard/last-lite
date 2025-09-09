@@ -1,6 +1,6 @@
 # Last-Lite Browser MMO
 
-A Last Chaos-flavored browser MMO built with TypeScript, Colyseus, and text-based UI, following Test-Driven Development principles.
+A Last Chaos-flavored browser MMO built with TypeScript, Socket.io, and text-based UI, following Test-Driven Development principles.
 
 ## 🎯 Project Overview
 
@@ -12,8 +12,8 @@ Last-Lite is a lightweight browser MMO featuring:
 
 ## 🏗️ Architecture
 
-- **Client**: Vite + TypeScript + text-based UI + colyseus.js
-- **Server**: Node.js + TypeScript + Colyseus + Express
+- **Client**: Vite + TypeScript + text-based UI + socket.io-client
+- **Server**: Node.js + TypeScript + Socket.io + Express
 - **Testing**: Vitest (unit/integration) + Playwright (E2E)
 - **Persistence**: In-memory (v0.1) → Postgres + Prisma (M5)
 
@@ -38,7 +38,7 @@ npm run dev
 
 # Or run separately:
 npm run dev:client  # Vite dev server on :5173
-npm run dev:server  # Colyseus server on :2567
+npm run dev:server  # Socket.io server on :3000
 ```
 
 ### Testing
@@ -165,11 +165,11 @@ last-lite/
 │   │   ├── main.ts        # Entry point
 │   │   └── ui/            # Feed system and UI components
 │   └── __tests__/         # Client unit tests
-├── server/                 # Node.js + Colyseus server
+├── server/                 # Node.js + Socket.io server
 │   ├── src/
 │   │   ├── rooms/         # Game rooms (Hub, Field, Dungeon)
 │   │   ├── systems/       # Game systems (Movement, Combat, AI)
-│   │   └── server.ts      # Express + Colyseus setup
+│   │   └── socket-server.ts # Express + Socket.io setup
 │   └── tests/             # Server unit tests
 ├── e2e/                   # Playwright E2E tests
 │   └── tests/             # End-to-end test scenarios
