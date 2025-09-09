@@ -580,44 +580,56 @@ export class SocketGameServer {
         this.handleDisconnect(socket);
       });
       
-      socket.on('command', (data: { text: string }) => {
+      socket.on('command', (data: { command: string }) => {
         this.handleCommand(socket, data);
       });
     });
   }
 
   private handleJoinRoom(socket: any, data: { roomName: string; playerName: string; playerClass: string }): void {
+    console.log(`Handling join_room for socket ${socket.id}:`, data);
     const roomName = data.roomName || 'world_hub';
     
-    // Get or create room
-    let room = this.rooms.get(roomName);
-    if (!room) {
-      room = new GameRoom(roomName, this.io);
-      this.rooms.set(roomName, room);
+    try {
+      // Get or create room
+      let room = this.rooms.get(roomName);
+      if (!room) {
+        console.log(`Creating new room: ${roomName}`);
+        room = new GameRoom(roomName, this.io);
+        this.rooms.set(roomName, room);
+      }
+      
+      // Join the room
+      socket.join(roomName);
+      console.log(`Socket ${socket.id} joined room ${roomName}`);
+      
+      // Add player to room
+      const player = room.addPlayer(socket.id, data.playerName, data.playerClass);
+      console.log(`Player created:`, player);
+      
+      // Send initial state to the player
+      const gameState = room.getState();
+      console.log(`Sending game state to ${socket.id}:`, gameState);
+      socket.emit('game_state', gameState);
+      
+      // Notify other players in the room
+      socket.to(roomName).emit('player_joined', {
+        playerId: socket.id,
+        playerName: player.name,
+        playerClass: player.class
+      });
+      
+      // Send welcome message
+      socket.emit('message', { 
+        message: `Welcome to Last-Lite, ${player.name}! You're in the ${roomName} world. Type 'help' for commands.`,
+        type: 'system'
+      });
+      
+      console.log(`Player ${player.name} successfully joined room ${roomName}`);
+    } catch (error) {
+      console.error(`Error in handleJoinRoom:`, error);
+      socket.emit('error', 'Failed to join room: ' + (error instanceof Error ? error.message : String(error)));
     }
-    
-    // Join the room
-    socket.join(roomName);
-    
-    // Add player to room
-    const player = room.addPlayer(socket.id, data.playerName, data.playerClass);
-    
-    // Send initial state to the player
-    socket.emit('state', room.getState());
-    
-    // Notify other players in the room
-    socket.to(roomName).emit('player_joined', {
-      playerId: socket.id,
-      playerName: player.name,
-      playerClass: player.class
-    });
-    
-    // Send welcome message
-    socket.emit('message', { 
-      text: `Welcome to Last-Lite, ${player.name}! You're in the ${roomName} world. Type 'help' for commands.` 
-    });
-    
-    console.log(`Player ${player.name} joined room ${roomName}`);
   }
 
   private handleDisconnect(socket: any): void {
@@ -641,11 +653,11 @@ export class SocketGameServer {
     }
   }
 
-  private handleCommand(socket: any, data: { text: string }): void {
+  private handleCommand(socket: any, data: { command: string }): void {
     // Find which room the player is in
     for (const [roomName, room] of this.rooms) {
       if (room.hasPlayer(socket.id)) {
-        room.handleCommand(socket.id, data.text);
+        room.handleCommand(socket.id, data.command);
         break;
       }
     }
