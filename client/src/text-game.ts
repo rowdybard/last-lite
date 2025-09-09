@@ -92,13 +92,23 @@ export class TextGame {
         });
       });
 
-      // Listen for errors
-      this.room.onError((code: number, message: string) => {
+      // Listen for connection errors
+      this.room.onError((code: number, message?: string) => {
         this.feedSystem.addEntry({
           at: Date.now(),
-          text: `Connection error: ${message}`,
+          text: `Connection error: ${message || code}`,
           type: 'error'
         });
+      });
+
+      // Listen for connection close
+      this.room.onLeave((code: number) => {
+        this.feedSystem.addEntry({
+          at: Date.now(),
+          text: 'Connection lost. Attempting to reconnect...',
+          type: 'error'
+        });
+        this.reconnect();
       });
 
       // Send initial welcome message
@@ -163,8 +173,25 @@ export class TextGame {
     this.historyIndex = this.commandHistory.length;
 
     // Send to server
-    if (this.room) {
-      this.room.send('cmd', { text: command });
+    if (this.room && this.room.connection.isOpen) {
+      try {
+        this.room.send('cmd', { text: command });
+      } catch (error) {
+        this.feedSystem.addEntry({
+          at: Date.now(),
+          text: `Connection error: ${error}`,
+          type: 'error'
+        });
+        // Try to reconnect
+        this.reconnect();
+      }
+    } else {
+      this.feedSystem.addEntry({
+        at: Date.now(),
+        text: 'Not connected to server. Attempting to reconnect...',
+        type: 'error'
+      });
+      this.reconnect();
     }
 
     // Show in feed
@@ -173,6 +200,33 @@ export class TextGame {
       text: `> ${command}`,
       type: 'info'
     });
+  }
+
+  private async reconnect(): Promise<void> {
+    try {
+      // Close existing connection if any
+      if (this.room) {
+        this.room.leave();
+      }
+      
+      // Wait a moment before reconnecting
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Reconnect to hub
+      await this.connectToHub();
+      
+      this.feedSystem.addEntry({
+        at: Date.now(),
+        text: 'Reconnected to server!',
+        type: 'info'
+      });
+    } catch (error) {
+      this.feedSystem.addEntry({
+        at: Date.now(),
+        text: `Reconnection failed: ${error}`,
+        type: 'error'
+      });
+    }
   }
 
   private handleHotkey(hotkey: string): void {
