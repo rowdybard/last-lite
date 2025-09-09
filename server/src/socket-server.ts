@@ -40,6 +40,380 @@ export class SocketGameServer {
     this.startGameLoop();
   }
 
+  private getEmbeddedHomepageHtml(): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last-Lite MMO - Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 15px; }
+        .form-container { background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 30px; margin: 20px 0; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white; }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; font-size: 16px; margin: 5px; }
+        .btn:hover { background: #45a049; }
+        .btn-secondary { background: #2196F3; }
+        .btn-secondary:hover { background: #1976D2; }
+        .error { background: #ff4444; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #4CAF50; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Last-Lite MMO</h1>
+            <p>Text-Based Adventure Game</p>
+        </div>
+        
+        <div id="login-form" class="form-container">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <button class="btn btn-secondary" onclick="showRegister()">Create Account</button>
+        </div>
+        
+        <div id="register-form" class="form-container hidden">
+            <h2>Create Account</h2>
+            <div class="form-group">
+                <label for="reg-username">Username:</label>
+                <input type="text" id="reg-username" placeholder="Choose a username">
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password:</label>
+                <input type="password" id="reg-password" placeholder="Choose a password">
+            </div>
+            <div class="form-group">
+                <label for="reg-confirm">Confirm Password:</label>
+                <input type="password" id="reg-confirm" placeholder="Confirm your password">
+            </div>
+            <div class="form-group">
+                <label for="character-name">Character Name:</label>
+                <input type="text" id="character-name" placeholder="Choose a character name">
+            </div>
+            <button class="btn" onclick="register()">Create Account</button>
+            <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
+        </div>
+        
+        <div id="user-info" class="form-container hidden">
+            <h2>Welcome, <span id="current-username"></span>!</h2>
+            <p><strong>Character:</strong> <span id="current-character"></span></p>
+            <p><strong>Class:</strong> <span id="current-class"></span></p>
+            <button class="btn" onclick="enterGame()">Enter Game</button>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let currentUser = null;
+
+        function initSocket() {
+            socket = io();
+            
+            socket.on('login_success', (data) => {
+                currentUser = data;
+                showUserInfo();
+            });
+            
+            socket.on('register_success', (data) => {
+                currentUser = data;
+                showUserInfo();
+            });
+            
+            socket.on('error', (error) => {
+                showError(error);
+            });
+        }
+
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+        }
+
+        function showUserInfo() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            
+            document.getElementById('current-username').textContent = currentUser.username;
+            document.getElementById('current-character').textContent = currentUser.characterName;
+            document.getElementById('current-class').textContent = currentUser.characterClass;
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            socket.emit('login', { username, password });
+        }
+
+        function register() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const characterName = document.getElementById('character-name').value;
+            
+            if (!username || !password || !characterName) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirm) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            socket.emit('register', { username, password, characterName, characterClass: 'Warrior' });
+        }
+
+        function enterGame() {
+            if (currentUser) {
+                const gameUrl = '/game.html?user=' + encodeURIComponent(JSON.stringify(currentUser));
+                window.location.href = gameUrl;
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            showLogin();
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSocket();
+        });
+    </script>
+</body>
+</html>`;
+  }
+
+  private getEmbeddedGameHtml(): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last-Lite MMO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 15px; }
+        .game-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        .world-feed { background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 20px; min-height: 400px; }
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .info-panel, .actions-panel { background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 20px; }
+        .command-input { width: 100%; padding: 10px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #45a049; }
+        .status { padding: 10px; background: rgba(0, 0, 0, 0.5); border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Last-Lite MMO</h1>
+            <p>Text-Based Adventure Game</p>
+        </div>
+        
+        <div class="game-layout">
+            <div class="world-feed">
+                <h3>World Information</h3>
+                <div id="world-feed">
+                    <div class="status">Connecting to game server...</div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <input type="text" id="command-input" class="command-input" placeholder="Enter command (e.g., 'look', 'move north', 'attack goblin')" onkeypress="handleCommand(event)">
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="info-panel">
+                    <h3>Player Status</h3>
+                    <div id="player-status">
+                        <p><strong>Name:</strong> <span id="player-name">Loading...</span></p>
+                        <p><strong>Class:</strong> <span id="player-class">Loading...</span></p>
+                        <p><strong>Health:</strong> <span id="player-health">Loading...</span></p>
+                        <p><strong>Room:</strong> <span id="current-room">Loading...</span></p>
+                    </div>
+                </div>
+                
+                <div class="actions-panel">
+                    <h3>Quick Actions</h3>
+                    <button class="btn" onclick="sendCommand('look')">Look</button>
+                    <button class="btn" onclick="sendCommand('inventory')">Inventory</button>
+                    <button class="btn" onclick="sendCommand('stats')">Stats</button>
+                    <button class="btn" onclick="sendCommand('help')">Help</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let gameState = null;
+        let isConnected = false;
+        let currentRoom = 'Connecting...';
+        let playerName = 'Player';
+        let playerClass = 'Adventurer';
+        let userData = {};
+
+        // Parse user data from URL
+        function parseUserData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            if (userParam) {
+                try {
+                    userData = JSON.parse(decodeURIComponent(userParam));
+                    playerName = userData.characterName || 'Player';
+                    playerClass = userData.characterClass || 'Adventurer';
+                    console.log('User data:', userData);
+                } catch (e) {
+                    console.error('Failed to parse user data:', e);
+                }
+            }
+        }
+
+        function connect() {
+            parseUserData();
+            
+            // Connect to Socket.io server
+            socket = io();
+            
+            socket.on('connect', () => {
+                console.log('Connected to server');
+                isConnected = true;
+                addToFeed('Connected to game server!', 'system');
+                joinGame();
+            });
+            
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                isConnected = false;
+                addToFeed('Disconnected from server', 'error');
+            });
+            
+            socket.on('game_state', (state) => {
+                gameState = state;
+                updateUI();
+            });
+            
+            socket.on('message', (data) => {
+                addToFeed(data.message, data.type || 'info');
+            });
+            
+            socket.on('error', (error) => {
+                addToFeed('Error: ' + error, 'error');
+            });
+        }
+
+        function joinGame() {
+            if (socket && isConnected) {
+                socket.emit('join_room', {
+                    roomName: 'world_hub',
+                    playerName: playerName,
+                    playerClass: playerClass
+                });
+                addToFeed('Joining world...', 'system');
+            }
+        }
+
+        function sendCommand(command) {
+            if (socket && isConnected) {
+                socket.emit('command', { command: command });
+                addToFeed('> ' + command, 'command');
+            } else {
+                addToFeed('Not connected to server', 'error');
+            }
+        }
+
+        function handleCommand(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('command-input');
+                const command = input.value.trim();
+                if (command) {
+                    sendCommand(command);
+                    input.value = '';
+                }
+            }
+        }
+
+        function addToFeed(message, type = 'info') {
+            const feed = document.getElementById('world-feed');
+            const div = document.createElement('div');
+            div.className = 'status';
+            div.style.color = type === 'error' ? '#ff6b6b' : type === 'system' ? '#4ecdc4' : type === 'command' ? '#ffe66d' : 'white';
+            div.textContent = message;
+            feed.appendChild(div);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function updateUI() {
+            if (gameState) {
+                document.getElementById('player-name').textContent = playerName;
+                document.getElementById('player-class').textContent = playerClass;
+                document.getElementById('current-room').textContent = currentRoom;
+                
+                if (gameState.players && gameState.players[playerName]) {
+                    const player = gameState.players[playerName];
+                    document.getElementById('player-health').textContent = player.health + '/' + player.maxHealth;
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            connect();
+        });
+    </script>
+</body>
+</html>`;
+  }
+
   private setupRoutes(): void {
     const clientDistPath = path.join(__dirname, '../../client/dist');
     console.log('Client dist path:', clientDistPath);
@@ -110,8 +484,9 @@ export class SocketGameServer {
         }
         
         if (!found) {
-          console.log('❌ Homepage not found anywhere, sending 404');
-          res.status(404).send('Homepage not found');
+          console.log('❌ Homepage not found anywhere, serving embedded homepage');
+          const homepageHtml = this.getEmbeddedHomepageHtml();
+          res.send(homepageHtml);
         }
       }
     });
@@ -148,33 +523,10 @@ export class SocketGameServer {
         }
         
         if (!found) {
-          console.log('❌ Game file not found anywhere, serving fallback HTML');
-          // Serve a basic fallback HTML
-          const fallbackHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Last-Lite MMO - Game</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .error { background: #ff4444; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .info { background: #4444ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Last-Lite MMO</h1>
-        <div class="error">Game file not found in expected location</div>
-        <div class="info">This is a fallback page. The game should be working, but there's a file path issue.</div>
-        <p>User data: ${req.query.user || 'No user data'}</p>
-        <p>Please check the server logs for more information.</p>
-    </div>
-</body>
-</html>`;
-          res.send(fallbackHtml);
+          console.log('❌ Game file not found anywhere, serving embedded game HTML');
+          // Serve the actual game HTML embedded in the server
+          const gameHtml = this.getEmbeddedGameHtml();
+          res.send(gameHtml);
         }
       }
     });
