@@ -1,6 +1,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
 import express from 'express';
+import path from 'path';
 import { WorldState, Player, Entity, Drop } from './shared/types.js';
 import { MovementSystem } from './systems/movement.js';
 import { CommandParser, ParsedCommand } from './systems/command-parser.js';
@@ -40,19 +41,26 @@ export class SocketGameServer {
   }
 
   private setupRoutes(): void {
+    const clientDistPath = path.join(__dirname, '../../client/dist');
+    console.log('Client dist path:', clientDistPath);
+    
     // Serve static files
-    this.app.use(express.static('../client/dist'));
+    this.app.use(express.static(clientDistPath));
     
     // Serve homepage
     this.app.get('/', (req, res) => {
       console.log('Serving homepage...');
-      res.sendFile('homepage.html', { root: '../client/dist' });
+      const homepagePath = path.join(clientDistPath, 'homepage.html');
+      console.log('Homepage path:', homepagePath);
+      res.sendFile(homepagePath);
     });
     
     // Serve game
     this.app.get('/game.html', (req, res) => {
       console.log('Serving game.html with params:', req.query);
-      res.sendFile('polished-game.html', { root: '../client/dist' });
+      const gamePath = path.join(clientDistPath, 'polished-game.html');
+      console.log('Game path:', gamePath);
+      res.sendFile(gamePath);
     });
     
     // Health check
