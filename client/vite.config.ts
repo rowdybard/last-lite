@@ -13,6 +13,7 @@ export default defineConfig({
       output: {
         manualChunks: undefined,
       },
+      external: ['/socket.io/socket.io.js'],
     },
   },
   resolve: {
