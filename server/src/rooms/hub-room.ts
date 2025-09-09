@@ -21,7 +21,7 @@ export class HubRoom extends BaseRoom {
       buffs: [],
       debuffs: [],
       lastGcd: 0,
-      abilityCooldowns: new Map(),
+      abilityCooldowns: {},
       inventory: [],
       lastActivity: Date.now(),
     };

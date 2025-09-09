@@ -36,7 +36,7 @@ export class PlayerPersistencePostgres {
 
       // Convert ability cooldowns Map to object for JSON storage
       const abilityCooldownsObj: Record<string, number> = {};
-      player.abilityCooldowns.forEach((value, key) => {
+      Object.entries(player.abilityCooldowns).forEach(([key, value]) => {
         abilityCooldownsObj[key] = value;
       });
 
@@ -213,11 +213,11 @@ export class PlayerPersistencePostgres {
   }
 
   private rowToPlayer(row: any): Player {
-    // Convert ability cooldowns object back to Map
-    const abilityCooldowns = new Map<string, number>();
+    // Convert ability cooldowns object back to Record
+    const abilityCooldowns: Record<string, number> = {};
     if (row.ability_cooldowns) {
       Object.entries(row.ability_cooldowns).forEach(([key, value]) => {
-        abilityCooldowns.set(key, value as number);
+        abilityCooldowns[key] = value as number;
       });
     }
 

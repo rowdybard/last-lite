@@ -22,7 +22,7 @@ export class CombatSystem {
     }
 
     // Check ability cooldown
-    const lastCast = player.abilityCooldowns.get(ability.id);
+    const lastCast = player.abilityCooldowns[ability.id];
     if (lastCast && currentTime - lastCast < ability.cd * 1000) {
       return { success: false, reason: 'Cooldown' };
     }
@@ -51,7 +51,7 @@ export class CombatSystem {
     player.lastGcd = currentTime;
 
     // Update ability cooldown
-    player.abilityCooldowns.set(ability.id, currentTime);
+    player.abilityCooldowns[ability.id] = currentTime;
 
     // Consume resources
     player.mp = Math.max(0, player.mp - ability.cost);

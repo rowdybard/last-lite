@@ -66,7 +66,7 @@ export abstract class BaseRoom extends Room<WorldState> {
     
     // Create player
     const player = this.createPlayer(client.sessionId, options);
-    this.state.players.set(client.sessionId, player);
+    this.state.players[client.sessionId] = player;
     
     // Send initial state
     client.send('state', this.state);
@@ -76,7 +76,7 @@ export abstract class BaseRoom extends Room<WorldState> {
     console.log(`Client ${client.sessionId} left room ${this.roomId}`);
     
     // Remove player
-    this.state.players.delete(client.sessionId);
+    delete this.state.players[client.sessionId];
   }
 
   onDispose() {
@@ -93,20 +93,20 @@ export abstract class BaseRoom extends Room<WorldState> {
     const deltaTime = 1 / this.tickRate;
     
     // Update movement for all players
-    this.state.players.forEach((player) => {
+    Object.values(this.state.players).forEach((player) => {
       this.movementSystem.step(deltaTime, player);
     });
 
     // Update AI for all entities
     const entities = this.entitySystem.getAllEntities();
-    this.aiSystem.update(entities, this.state.players, deltaTime);
+    this.aiSystem.update(entities, new Map(Object.entries(this.state.players)), deltaTime);
     
     // Update timestamp
     this.state.timestamp = Date.now();
   }
 
   protected handleCommand(client: Client, data: { text: string }): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const parsed = this.commandParser.parse(data.text);
@@ -163,7 +163,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleMoveCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player || !parsed.direction) return;
 
     // Simple tile-based movement
@@ -221,7 +221,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleAttackCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player || !parsed.target) return;
 
     // Find target entity
@@ -325,7 +325,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleCastCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player || !parsed.ability) return;
 
     // Find ability
@@ -410,7 +410,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleLookCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     let lookText = `You are in ${this.roomId}. Position: (${Math.round(player.pos.x)}, ${Math.round(player.pos.z)})\n`;
@@ -435,7 +435,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleSayCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     // Update quest progress for say command
@@ -454,7 +454,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleInput(client: Client, input: any): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     // Update player velocity based on input
@@ -476,7 +476,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleZoneSwap(client: Client, data: { toZoneId: string }): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     // Validate transfer request
@@ -510,7 +510,7 @@ export abstract class BaseRoom extends Room<WorldState> {
     });
 
     // Remove player from current room
-    this.state.players.delete(client.sessionId);
+    delete this.state.players[client.sessionId];
   }
 
   protected findEntityByName(name: string): Entity | null {
@@ -545,7 +545,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleInventoryCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const inventory = this.inventorySystem.getInventory(player);
@@ -574,7 +574,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleVendorCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const vendorInventory = this.vendorSystem.getVendorInventory(player);
@@ -597,7 +597,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleBuyCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.args || parsed.args.length === 0) {
@@ -642,7 +642,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleSellCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.args || parsed.args.length === 0) {
@@ -684,7 +684,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleQuestCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     switch (parsed.questAction) {
@@ -704,7 +704,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleQuestListCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const availableQuests = this.questSystem.getAvailableQuests(player.id);
@@ -740,7 +740,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleQuestStartCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.questId) {
@@ -771,7 +771,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleQuestStatusCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const playerQuests = this.questSystem.getPlayerQuests(player.id);
@@ -809,7 +809,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handleQuestAbandonCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     this.sendFeedEntry(client, {
@@ -820,7 +820,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     switch (parsed.petAction) {
@@ -846,7 +846,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetListCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const pets = this.petSystem.getPlayerPets(player.id);
@@ -878,7 +878,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetAdoptCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.petType || !parsed.petName) {
@@ -908,7 +908,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetSummonCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.petId) {
@@ -939,7 +939,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetDismissCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.petId) {
@@ -970,7 +970,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetUseCommand(client: Client, parsed: ParsedCommand): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     if (!parsed.petId || !parsed.ability) {
@@ -1008,7 +1008,7 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   protected handlePetStatusCommand(client: Client): void {
-    const player = this.state.players.get(client.sessionId);
+    const player = this.state.players[client.sessionId];
     if (!player) return;
 
     const pets = this.petSystem.getPlayerPets(player.id);

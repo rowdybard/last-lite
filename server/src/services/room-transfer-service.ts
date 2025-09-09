@@ -21,7 +21,7 @@ export interface TransferPayload {
   spawnPos: Position;
   buffs: any[];
   lastGcd: number;
-  abilityCooldowns: Map<string, number>;
+  abilityCooldowns: Record<string, number>;
 }
 
 export class RoomTransferService {
@@ -76,7 +76,7 @@ export class RoomTransferService {
       spawnPos,
       buffs: [...player.buffs],
       lastGcd: player.lastGcd,
-      abilityCooldowns: new Map(player.abilityCooldowns),
+      abilityCooldowns: { ...player.abilityCooldowns },
     };
   }
 

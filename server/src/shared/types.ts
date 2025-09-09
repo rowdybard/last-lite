@@ -28,7 +28,7 @@ export interface Player {
   buffs: Buff[];
   debuffs: Buff[];
   lastGcd: number;
-  abilityCooldowns: Map<string, number>;
+  abilityCooldowns: Record<string, number>;
   inventory: InventoryItem[];
   lastActivity: number;
 }
@@ -267,28 +267,10 @@ export enum BuffType {
 
 // World State
 export class WorldState {
-  players: Map<string, Player> = new Map();
-  entities: Map<string, Entity> = new Map();
-  drops: Map<string, Drop> = new Map();
+  players: Record<string, Player> = {};
+  entities: Record<string, Entity> = {};
+  drops: Record<string, Drop> = {};
   timestamp: number = Date.now();
-
-  // Serialize for client transmission
-  toJSON() {
-    const serializedPlayers: Record<string, any> = {};
-    for (const [id, player] of this.players) {
-      serializedPlayers[id] = {
-        ...player,
-        abilityCooldowns: Object.fromEntries(player.abilityCooldowns)
-      };
-    }
-
-    return {
-      players: serializedPlayers,
-      entities: Object.fromEntries(this.entities),
-      drops: Object.fromEntries(this.drops),
-      timestamp: this.timestamp
-    };
-  }
 }
 
 // Client Input Types
