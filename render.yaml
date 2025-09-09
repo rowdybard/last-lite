@@ -20,7 +20,7 @@ services:
       echo "Client dist:"
       ls -la client/dist/
       echo "=== Build complete ==="
-    startCommand: cd server && node dist/index.js
+    startCommand: cd server && node dist/socket-main.js
     envVars:
       - key: NODE_ENV
         value: production
