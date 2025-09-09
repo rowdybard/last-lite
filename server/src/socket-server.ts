@@ -45,7 +45,7 @@ export class SocketGameServer {
     
     // Serve homepage
     this.app.get('/', (req, res) => {
-      res.sendFile('homepage.html', { root: '../client/src' });
+      res.sendFile('homepage.html', { root: '../client/dist' });
     });
     
     // Serve game
