@@ -53,7 +53,12 @@ export class TextGame {
   private initializeNetwork(): void {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    this.client = new Client(`${protocol}//${host}`);
+    const serverUrl = `${protocol}//${host}`;
+    
+    console.log('Connecting to server:', serverUrl);
+    console.log('Current location:', window.location.href);
+    
+    this.client = new Client(serverUrl);
 
     this.connectToHub();
   }
