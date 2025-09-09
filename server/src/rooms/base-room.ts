@@ -102,6 +102,12 @@ export abstract class BaseRoom extends Room<WorldState> {
     }
   }
 
+  // Override Colyseus's state sending to prevent Map serialization
+  sendFullState(client: Client) {
+    // Do nothing - we handle state sending manually
+    console.log('sendFullState called but ignored to prevent Map serialization');
+  }
+
   onLeave(client: Client, consented: boolean) {
     console.log(`Client ${client.sessionId} left room ${this.roomId}`);
     

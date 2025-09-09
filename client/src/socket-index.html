@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last-Lite (Socket.io)</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+
+        .game-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .world-feed {
+            flex: 1;
+            background-color: #000;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            min-height: 300px;
+        }
+
+        .world-message {
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .command-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .command-input input {
+            flex: 1;
+            background-color: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .command-input button {
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .command-input button:hover {
+            background-color: #00cc00;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-button {
+            background-color: #333;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background-color: #444;
+        }
+
+        .player-list {
+            background-color: #000;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-bottom: 10px;
+            min-height: 150px;
+        }
+
+        .player-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #111;
+        }
+
+        .status {
+            background-color: #000;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .status.connected {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .status.disconnected {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .help-text {
+            background-color: #000;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .help-text h4 {
+            margin-top: 0;
+            color: #00ff00;
+        }
+
+        .help-text ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .help-text li {
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 Last-Lite MMO (Socket.io)</h1>
+        <p>Text-based multiplayer adventure</p>
+    </div>
+
+    <div class="game-container">
+        <div class="left-panel">
+            <div id="world-feed" class="world-feed">
+                <div class="world-message">Welcome to Last-Lite! Connecting to server...</div>
+            </div>
+            
+            <div class="command-input">
+                <input type="text" id="command-input" placeholder="Type a command (e.g., 'move north', 'say hello', 'help')" />
+                <button onclick="sendCommand()">Send</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-button" onclick="sendCommand('move north')">Move North</button>
+                <button class="action-button" onclick="sendCommand('move south')">Move South</button>
+                <button class="action-button" onclick="sendCommand('move east')">Move East</button>
+                <button class="action-button" onclick="sendCommand('move west')">Move West</button>
+                <button class="action-button" onclick="sendCommand('say hello')">Say Hello</button>
+                <button class="action-button" onclick="sendCommand('help')">Help</button>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="status" class="status disconnected">
+                Disconnected
+            </div>
+
+            <div class="player-list">
+                <h4>Players Online</h4>
+                <div id="player-list">
+                    <div class="player-item">Loading...</div>
+                </div>
+            </div>
+
+            <div class="help-text">
+                <h4>Available Commands:</h4>
+                <ul>
+                    <li><strong>move &lt;direction&gt;</strong> - Move north, south, east, or west</li>
+                    <li><strong>say &lt;message&gt;</strong> - Send a message to other players</li>
+                    <li><strong>attack &lt;target&gt;</strong> - Attack a target</li>
+                    <li><strong>help</strong> - Show this help message</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { SocketGameClient } from './socket-game.js';
+
+        // Initialize the game client
+        const gameClient = new SocketGameClient();
+
+        // Global functions for HTML buttons
+        window.sendCommand = function(command) {
+            if (typeof command === 'string') {
+                // Command from button click
+                gameClient.handleCommand(command);
+            } else {
+                // Command from input field
+                const input = document.getElementById('command-input');
+                const commandText = input.value.trim();
+                if (commandText) {
+                    gameClient.handleCommand(commandText);
+                    input.value = '';
+                }
+            }
+        };
+
+        // Handle Enter key in command input
+        document.getElementById('command-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendCommand();
+            }
+        });
+
+        // Update connection status
+        setInterval(() => {
+            const statusElement = document.getElementById('status');
+            if (gameClient.isServerConnected()) {
+                statusElement.textContent = 'Connected';
+                statusElement.className = 'status connected';
+            } else {
+                statusElement.textContent = 'Disconnected';
+                statusElement.className = 'status disconnected';
+            }
+        }, 1000);
+
+        // Add initial message
+        setTimeout(() => {
+            const worldFeed = document.getElementById('world-feed');
+            if (worldFeed.children.length === 1) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'world-message';
+                messageElement.textContent = 'Socket.io client initialized. Attempting to connect...';
+                worldFeed.appendChild(messageElement);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

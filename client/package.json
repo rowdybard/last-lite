@@ -13,16 +13,17 @@
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' '__tests__/**/*.{ts,tsx}' --fix"
   },
   "dependencies": {
-    "colyseus.js": "^0.15.0"
+    "colyseus.js": "^0.15.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "eslint": "^8.55.0",
+    "jsdom": "^23.0.0",
     "typescript": "^5.3.0",
     "vite": "^4.5.0",
-    "vitest": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0",
-    "jsdom": "^23.0.0",
-    "eslint": "^8.55.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0"
+    "vitest": "^1.0.0"
   }
 }
