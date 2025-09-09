@@ -615,7 +615,7 @@
                 // Command from button click
                 if (socket && socket.connected) {
                     addMessage(`You: ${command}`, 'player');
-                    socket.emit('command', { text: command });
+                    socket.emit('command', { command: command });
                 } else {
                     addMessage('Not connected to server', 'error');
                 }
@@ -626,7 +626,7 @@
                 if (commandText) {
                     if (socket && socket.connected) {
                         addMessage(`You: ${commandText}`, 'player');
-                        socket.emit('command', { text: commandText });
+                        socket.emit('command', { command: commandText });
                         input.value = '';
                     } else {
                         addMessage('Not connected to server', 'error');
