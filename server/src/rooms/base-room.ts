@@ -62,14 +62,20 @@ export abstract class BaseRoom extends Room<WorldState> {
   }
 
   onJoin(client: Client, options: any) {
-    console.log(`Client ${client.sessionId} joined room ${this.roomId}`);
-    
-    // Create player
-    const player = this.createPlayer(client.sessionId, options);
-    this.state.players[client.sessionId] = player;
-    
-    // Send initial state
-    client.send('state', this.state);
+    try {
+      console.log(`Client ${client.sessionId} joined room ${this.roomId} with options:`, options);
+      
+      // Create player
+      const player = this.createPlayer(client.sessionId, options);
+      this.state.players[client.sessionId] = player;
+      
+      // Send initial state
+      client.send('state', this.state);
+      console.log(`Player ${player.name} created and state sent`);
+    } catch (error) {
+      console.error(`Error in onJoin for client ${client.sessionId}:`, error);
+      client.send('error', { message: 'Failed to join room' });
+    }
   }
 
   onLeave(client: Client, consented: boolean) {
