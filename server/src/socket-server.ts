@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import express from 'express';
 import path from 'path';
 import { WorldState, Player, Entity, Drop } from './shared/types.js';
+import { UserService } from './services/user-service.js';
+import { DatabaseConnection } from './database/config.js';
 import { MovementSystem } from './systems/movement.js';
 import { CommandParser, ParsedCommand } from './systems/command-parser.js';
 import { CombatSystem } from './systems/combat.js';
@@ -20,7 +22,7 @@ export class SocketGameServer {
   private server: any;
   private rooms: Map<string, GameRoom> = new Map();
   private tickRate: number;
-  private users: Map<string, any> = new Map();
+  private userService: UserService;
   private parties: Map<string, any> = new Map();
   private userSockets: Map<string, any> = new Map();
 
@@ -34,6 +36,7 @@ export class SocketGameServer {
       }
     });
     this.tickRate = parseInt(process.env.TICK_RATE || '60');
+    this.userService = new UserService();
     
     this.setupRoutes();
     this.setupSocketHandlers();
@@ -542,12 +545,12 @@ export class SocketGameServer {
       console.log(`Client ${socket.id} connected`);
       
       // Account management
-      socket.on('login', (data: { username: string; password: string }) => {
-        this.handleLogin(socket, data);
+      socket.on('login', async (data: { username: string; password: string }) => {
+        await this.handleLogin(socket, data);
       });
       
-      socket.on('register', (data: { username: string; password: string; characterName: string; characterClass: string }) => {
-        this.handleRegister(socket, data);
+      socket.on('register', async (data: { username: string; password: string; characterName: string; characterClass: string }) => {
+        await this.handleRegister(socket, data);
       });
       
       // Party management
@@ -664,32 +667,63 @@ export class SocketGameServer {
   }
 
   // Account management handlers
-  private handleLogin(socket: any, data: { username: string; password: string }): void {
-    const user = this.users.get(data.username);
-    if (user && user.password === data.password) {
-      this.userSockets.set(data.username, socket);
-      socket.emit('login_success', { user: { username: user.username, characterName: user.characterName, characterClass: user.characterClass } });
-    } else {
-      socket.emit('error', { message: 'Invalid username or password' });
+  private async handleLogin(socket: any, data: { username: string; password: string }): Promise<void> {
+    try {
+      const isValid = await this.userService.validatePassword(data.username, data.password);
+      if (isValid) {
+        const user = await this.userService.getUserByUsername(data.username);
+        if (user) {
+          this.userSockets.set(data.username, socket);
+          socket.emit('login_success', { 
+            username: user.username, 
+            characterName: user.characterName, 
+            characterClass: user.characterClass 
+          });
+        } else {
+          socket.emit('error', { message: 'User not found' });
+        }
+      } else {
+        socket.emit('error', { message: 'Invalid username or password' });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      socket.emit('error', { message: 'Login failed: ' + (error instanceof Error ? error.message : String(error)) });
     }
   }
 
-  private handleRegister(socket: any, data: { username: string; password: string; characterName: string; characterClass: string }): void {
-    if (this.users.has(data.username)) {
-      socket.emit('error', { message: 'Username already exists' });
-      return;
+  private async handleRegister(socket: any, data: { username: string; password: string; characterName: string; characterClass: string }): Promise<void> {
+    try {
+      // Check if username already exists
+      const usernameExists = await this.userService.userExists(data.username);
+      if (usernameExists) {
+        socket.emit('error', { message: 'Username already exists' });
+        return;
+      }
+
+      // Check if character name already exists
+      const characterNameExists = await this.userService.characterNameExists(data.characterName);
+      if (characterNameExists) {
+        socket.emit('error', { message: 'Character name already exists' });
+        return;
+      }
+
+      // Create user in database
+      const user = await this.userService.createUser({
+        username: data.username,
+        password: data.password,
+        characterName: data.characterName,
+        characterClass: data.characterClass
+      });
+
+      socket.emit('register_success', { 
+        username: user.username,
+        characterName: user.characterName,
+        characterClass: user.characterClass
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      socket.emit('error', { message: 'Registration failed: ' + (error instanceof Error ? error.message : String(error)) });
     }
-
-    const user = {
-      username: data.username,
-      password: data.password,
-      characterName: data.characterName,
-      characterClass: data.characterClass,
-      createdAt: Date.now()
-    };
-
-    this.users.set(data.username, user);
-    socket.emit('register_success', { user });
   }
 
   // Party management handlers

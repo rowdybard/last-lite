@@ -4,6 +4,16 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Users table for authentication
+CREATE TABLE IF NOT EXISTS users (
+    username VARCHAR(255) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL,
+    character_name VARCHAR(255) NOT NULL,
+    character_class VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 -- Players table
 CREATE TABLE IF NOT EXISTS players (
     id VARCHAR(255) PRIMARY KEY,
@@ -93,6 +103,9 @@ END;
 $$ language 'plpgsql';
 
 -- Triggers to automatically update updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_players_updated_at BEFORE UPDATE ON players
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
