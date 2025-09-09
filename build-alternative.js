@@ -15,6 +15,17 @@ try {
   // Build server
   console.log('🔨 Building server...');
   execSync('cd server && npm ci && npm run build', { stdio: 'inherit' });
+  
+  // Verify server build
+  console.log('🔍 Verifying server build...');
+  const serverDistPath = path.join(process.cwd(), 'server', 'dist');
+  const socketMainPath = path.join(serverDistPath, 'socket-main.js');
+  if (fs.existsSync(socketMainPath)) {
+    console.log('✅ socket-main.js found at:', socketMainPath);
+  } else {
+    console.log('❌ socket-main.js NOT found at:', socketMainPath);
+    console.log('Server dist contents:', fs.readdirSync(serverDistPath));
+  }
 
   // Run database migration
   console.log('🗄️ Running database migration...');
