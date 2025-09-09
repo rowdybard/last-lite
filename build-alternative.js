@@ -16,6 +16,16 @@ try {
   console.log('🔨 Building server...');
   execSync('cd server && npm ci && npm run build', { stdio: 'inherit' });
 
+  // Run database migration
+  console.log('🗄️ Running database migration...');
+  try {
+    execSync('cd server && node dist/database/migrate-standalone.js', { stdio: 'inherit' });
+    console.log('✅ Database migration completed');
+  } catch (error) {
+    console.log('⚠️ Database migration failed, but continuing...');
+    console.log('This might be expected if tables already exist');
+  }
+
   // Build client with alternative approach
   console.log('🔨 Building client with alternative approach...');
   const clientPath = path.join(process.cwd(), 'client');

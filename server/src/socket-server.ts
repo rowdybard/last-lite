@@ -38,9 +38,24 @@ export class SocketGameServer {
     this.tickRate = parseInt(process.env.TICK_RATE || '60');
     this.userService = new UserService();
     
+    this.initializeDatabase();
     this.setupRoutes();
     this.setupSocketHandlers();
     this.startGameLoop();
+  }
+
+  private async initializeDatabase(): Promise<void> {
+    try {
+      const db = DatabaseConnection.getInstance();
+      const isConnected = await db.testConnection();
+      if (isConnected) {
+        console.log('✅ Database connection established');
+      } else {
+        console.log('❌ Database connection failed');
+      }
+    } catch (error) {
+      console.error('Database initialization error:', error);
+    }
   }
 
   private getEmbeddedHomepageHtml(): string {

@@ -33,10 +33,10 @@ export class DatabaseMigrator {
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name IN ('players', 'world_entities', 'player_backups', 'world_backups')
+        AND table_name IN ('users', 'players', 'world_entities', 'player_backups', 'world_backups')
       `);
       
-      return result.rows.length === 4;
+      return result.rows.length === 5;
     } catch (error) {
       console.error('Error checking tables:', error);
       return false;
@@ -51,6 +51,7 @@ export class DatabaseMigrator {
       await this.db.query('DROP TABLE IF EXISTS player_backups CASCADE');
       await this.db.query('DROP TABLE IF EXISTS world_entities CASCADE');
       await this.db.query('DROP TABLE IF EXISTS players CASCADE');
+      await this.db.query('DROP TABLE IF EXISTS users CASCADE');
       await this.db.query('DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE');
       
       console.log('All tables dropped successfully');
