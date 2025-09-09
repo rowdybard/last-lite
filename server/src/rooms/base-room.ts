@@ -109,9 +109,9 @@ export abstract class BaseRoom extends Room<WorldState> {
       this.movementSystem.step(deltaTime, player);
     });
 
-    // Update AI for all entities
-    const entities = this.entitySystem.getAllEntities();
-    this.aiSystem.update(entities, new Map(Object.entries(this.state.players)), deltaTime);
+    // Temporarily disable AI system to test serialization
+    // const entities = this.entitySystem.getAllEntities();
+    // this.aiSystem.update(entities, new Map(Object.entries(this.state.players)), deltaTime);
     
     // Update timestamp
     this.state.timestamp = Date.now();
