@@ -42,6 +42,11 @@ export class SocketGameServer {
     // Serve static files
     this.app.use(express.static('../client/dist'));
     
+    // Serve polished UI as homepage
+    this.app.get('/', (req, res) => {
+      res.sendFile('polished-game.html', { root: '../client/dist' });
+    });
+    
     // Health check
     this.app.get('/healthz', (req, res) => {
       res.send('OK');
