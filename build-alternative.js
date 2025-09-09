@@ -41,6 +41,27 @@ try {
   console.log('🔨 Building client with Vite...');
   execSync('cd client && npx vite build', { stdio: 'inherit' });
 
+  // Copy HTML files to dist (Vite build clears the directory)
+  console.log('📋 Copying HTML files to dist...');
+  const srcPath = path.join(clientPath, 'src');
+  const distPath = path.join(clientPath, 'dist');
+  
+  // Copy homepage.html
+  const homepageSrc = path.join(srcPath, 'homepage.html');
+  const homepageDist = path.join(distPath, 'homepage.html');
+  if (fs.existsSync(homepageSrc)) {
+    fs.copyFileSync(homepageSrc, homepageDist);
+    console.log('✅ Copied homepage.html to dist');
+  }
+  
+  // Copy polished-game.html
+  const gameSrc = path.join(srcPath, 'polished-game.html');
+  const gameDist = path.join(distPath, 'polished-game.html');
+  if (fs.existsSync(gameSrc)) {
+    fs.copyFileSync(gameSrc, gameDist);
+    console.log('✅ Copied polished-game.html to dist');
+  }
+
   // Verify builds
   console.log('✅ Verifying builds...');
   const serverDist = path.join(process.cwd(), 'server', 'dist');
@@ -54,9 +75,22 @@ try {
     throw new Error('Client build failed - dist directory not found');
   }
 
+  // Verify HTML files are in dist
+  const homepageDist = path.join(clientDist, 'homepage.html');
+  const gameDist = path.join(clientDist, 'polished-game.html');
+  
+  if (!fs.existsSync(homepageDist)) {
+    throw new Error('homepage.html not found in client/dist');
+  }
+  
+  if (!fs.existsSync(gameDist)) {
+    throw new Error('polished-game.html not found in client/dist');
+  }
+
   console.log('✅ Build completed successfully!');
   console.log(`📁 Server dist: ${serverDist}`);
   console.log(`📁 Client dist: ${clientDist}`);
+  console.log('✅ HTML files verified in dist directory');
 
 } catch (error) {
   console.error('❌ Build failed:', error.message);
