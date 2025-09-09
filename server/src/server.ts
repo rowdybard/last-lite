@@ -55,8 +55,8 @@ export async function createServer(): Promise<any> {
   });
 
   // Register rooms
-  gameServer.define('world:hub', HubRoom);
-  gameServer.define('world:field:1', FieldRoom);
+  gameServer.define('world_hub', HubRoom);
+  gameServer.define('world_field_1', FieldRoom);
   // gameServer.define('dungeon:grave-root', DungeonRoom);
 
   return httpServer;

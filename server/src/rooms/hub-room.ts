@@ -30,15 +30,15 @@ export class HubRoom extends BaseRoom {
   protected initializeZones(): void {
     // Initialize Hub zone
     const hubZone: Zone = {
-      id: 'world:hub',
+      id: 'world_hub',
       name: 'Hub',
       type: ZoneType.Hub,
       maxPlayers: 80,
       doors: [
         {
           id: 'hub-to-field-1',
-          fromZone: 'world:hub',
-          toZone: 'world:field:1',
+          fromZone: 'world_hub',
+          toZone: 'world_field_1',
           pos: { x: 10, y: 0, z: 0 },
         },
       ],
@@ -51,15 +51,15 @@ export class HubRoom extends BaseRoom {
 
     // Initialize Field zone
     const fieldZone: Zone = {
-      id: 'world:field:1',
+      id: 'world_field_1',
       name: 'Field 1',
       type: ZoneType.Field,
       maxPlayers: 60,
       doors: [
         {
           id: 'field-1-to-hub',
-          fromZone: 'world:field:1',
-          toZone: 'world:hub',
+          fromZone: 'world_field_1',
+          toZone: 'world_hub',
           pos: { x: -10, y: 0, z: 0 },
         },
       ],

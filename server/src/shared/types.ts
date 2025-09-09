@@ -33,6 +33,7 @@ export interface Player {
   lastActivity: number;
 }
 
+
 export interface Entity {
   id: string;
   name: string;
@@ -270,6 +271,24 @@ export class WorldState {
   entities: Map<string, Entity> = new Map();
   drops: Map<string, Drop> = new Map();
   timestamp: number = Date.now();
+
+  // Serialize for client transmission
+  toJSON() {
+    const serializedPlayers: Record<string, any> = {};
+    for (const [id, player] of this.players) {
+      serializedPlayers[id] = {
+        ...player,
+        abilityCooldowns: Object.fromEntries(player.abilityCooldowns)
+      };
+    }
+
+    return {
+      players: serializedPlayers,
+      entities: Object.fromEntries(this.entities),
+      drops: Object.fromEntries(this.drops),
+      timestamp: this.timestamp
+    };
+  }
 }
 
 // Client Input Types

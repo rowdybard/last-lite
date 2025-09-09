@@ -60,7 +60,8 @@ export class TextGame {
 
   private async connectToHub(): Promise<void> {
     try {
-      this.room = await this.client.joinOrCreate('world:hub', {
+      console.log('Attempting to connect to room: world_hub');
+      this.room = await this.client.joinOrCreate('world_hub', {
         name: 'TestPlayer',
         class: 'Warrior',
       });
@@ -251,6 +252,7 @@ export class TextGame {
 
   private async connectToZone(zoneId: string, payload: any): Promise<void> {
     try {
+      console.log('Attempting to connect to zone:', zoneId);
       this.room = await this.client.joinOrCreate(zoneId, {
         name: 'TestPlayer',
         class: 'Warrior',
