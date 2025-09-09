@@ -13,7 +13,6 @@
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' '__tests__/**/*.{ts,tsx}' --fix"
   },
   "dependencies": {
-    "colyseus.js": "^0.15.0",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
