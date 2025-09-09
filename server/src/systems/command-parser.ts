@@ -1,6 +1,6 @@
 export interface ParsedCommand {
   command: string;
-  type: 'move' | 'attack' | 'cast' | 'loot' | 'look' | 'say' | 'inventory' | 'inv' | 'vendor' | 'buy' | 'sell' | 'quest' | 'pet' | 'error';
+  type: 'move' | 'attack' | 'cast' | 'loot' | 'look' | 'say' | 'inventory' | 'inv' | 'vendor' | 'buy' | 'sell' | 'quest' | 'pet' | 'help' | 'error';
   direction?: 'north' | 'south' | 'east' | 'west';
   target?: string;
   ability?: string;
@@ -72,6 +72,8 @@ export class CommandParser {
         return { ...this.parseQuest(parts), command, args };
       case 'pet':
         return { ...this.parsePet(parts), command, args };
+      case 'help':
+        return { command, type: 'help', args };
       default:
         return {
           command,

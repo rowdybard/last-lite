@@ -149,6 +149,9 @@ export abstract class BaseRoom extends Room<WorldState> {
       case 'pet':
         this.handlePetCommand(client, parsed);
         break;
+      case 'help':
+        this.handleHelpCommand(client);
+        break;
       case 'error':
         this.sendFeedEntry(client, {
           at: Date.now(),
@@ -1033,6 +1036,57 @@ export abstract class BaseRoom extends Room<WorldState> {
     this.sendFeedEntry(client, {
       at: Date.now(),
       text: message,
+      type: 'info'
+    });
+  }
+
+  protected handleHelpCommand(client: Client): void {
+    const helpText = `
+Available Commands:
+
+MOVEMENT:
+  go north/south/east/west - Move in a direction
+  look - Look around the area
+
+COMBAT:
+  attack <target> - Attack a target
+  cast <ability> [target] - Cast an ability
+
+COMMUNICATION:
+  say <message> - Say something to other players
+
+INVENTORY:
+  inventory/inv - View your inventory
+  loot - Loot nearby items
+
+VENDOR:
+  vendor - Open vendor menu
+  buy <slot> [quantity] - Buy items
+  sell <slot> [quantity] - Sell items
+
+QUESTS:
+  quest - List available and active quests
+  quest start <quest_id> - Start a quest
+  quest status - Check quest progress
+  quest abandon <quest_id> - Abandon a quest
+
+PETS:
+  pet - List available pet types and owned pets
+  pet adopt <type> <name> - Adopt a new pet
+  pet summon <pet_id> - Summon a pet
+  pet dismiss <pet_id> - Dismiss a summoned pet
+  pet use <pet_id> <ability> - Use a pet ability
+  pet status - Check pet stats
+
+OTHER:
+  help - Show this help message
+
+Type any command to get started!
+`;
+
+    this.sendFeedEntry(client, {
+      at: Date.now(),
+      text: helpText,
       type: 'info'
     });
   }
