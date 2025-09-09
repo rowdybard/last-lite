@@ -6,6 +6,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    // Use esbuild for faster builds and avoid Rollup issues
+    minify: 'esbuild',
+    target: 'es2015',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
   resolve: {
     alias: {
@@ -15,5 +23,9 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+  },
+  // Optimize dependencies to avoid Rollup native issues
+  optimizeDeps: {
+    exclude: ['@rollup/rollup-linux-x64-gnu'],
   },
 });

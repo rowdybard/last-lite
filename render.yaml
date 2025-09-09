@@ -9,26 +9,8 @@ services:
       echo "Contents:"
       ls -la
       
-      echo "=== Installing dependencies ==="
-      npm install
-      
-      echo "=== Building server ==="
-      cd server
-      rm -rf node_modules package-lock.json
-      npm install
-      npm run build
-      echo "Server build complete. Contents:"
-      ls -la dist/
-      cd ..
-      
-      echo "=== Building client ==="
-      cd client  
-      rm -rf node_modules package-lock.json
-      npm install
-      npm run build
-      echo "Client build complete. Contents:"
-      ls -la dist/
-      cd ..
+      echo "=== Using alternative build script ==="
+      node build-alternative.js
       
       echo "=== Build verification ==="
       echo "Final structure:"
