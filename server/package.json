@@ -13,13 +13,11 @@
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}' --fix"
   },
   "dependencies": {
-    "colyseus": "^0.15.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "pg": "^8.11.3",
-    "socket.io": "^4.8.1",
-    "ws": "^8.14.2"
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -3,8 +3,6 @@ import { createServer } from 'http';
 import express from 'express';
 import { WorldState, Player, Entity, Drop } from './shared/types.js';
 import { MovementSystem } from './systems/movement.js';
-import { ZoneService } from './services/zone-service.js';
-import { RoomTransferService } from './services/room-transfer-service.js';
 import { CommandParser, ParsedCommand } from './systems/command-parser.js';
 import { CombatSystem } from './systems/combat.js';
 import { EntitySystem } from './systems/entity.js';
