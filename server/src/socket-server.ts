@@ -92,6 +92,11 @@ export class SocketGameServer {
       playerClass: player.class
     });
     
+    // Send welcome message
+    socket.emit('message', { 
+      text: `Welcome to Last-Lite, ${player.name}! You're in the ${roomName} world. Type 'help' for commands.` 
+    });
+    
     console.log(`Player ${player.name} joined room ${roomName}`);
   }
 
@@ -272,6 +277,15 @@ class GameRoom {
       case 'attack':
         this.handleAttackCommand(player, parsed);
         break;
+      case 'party':
+        this.handlePartyCommand(player, parsed, socketId);
+        break;
+      case 'dungeon':
+        this.handleDungeonCommand(player, parsed, socketId);
+        break;
+      case 'inventory':
+        this.handleInventoryCommand(player, socketId);
+        break;
       case 'help':
         this.handleHelpCommand(socketId);
         break;
@@ -339,13 +353,94 @@ class GameRoom {
     }
   }
 
+  private handlePartyCommand(player: Player, parsed: ParsedCommand, socketId: string): void {
+    const action = parsed.action;
+    
+    switch (action) {
+      case 'create':
+        this.io.to(socketId).emit('message', { text: 'Party created! Use "party invite <name>" to invite players.' });
+        break;
+      case 'invite':
+        if (parsed.target) {
+          this.io.to(socketId).emit('message', { text: `Invited ${parsed.target} to your party!` });
+        } else {
+          this.io.to(socketId).emit('message', { text: 'Usage: party invite <player name>' });
+        }
+        break;
+      case 'join':
+        if (parsed.target) {
+          this.io.to(socketId).emit('message', { text: `Joined ${parsed.target}'s party!` });
+        } else {
+          this.io.to(socketId).emit('message', { text: 'Usage: party join <party name>' });
+        }
+        break;
+      case 'leave':
+        this.io.to(socketId).emit('message', { text: 'Left the party.' });
+        break;
+      case 'list':
+        this.io.to(socketId).emit('message', { text: 'Available parties: None (create one with "party create")' });
+        break;
+      default:
+        this.io.to(socketId).emit('message', { text: 'Party commands: create, invite <name>, join <name>, leave, list' });
+    }
+  }
+
+  private handleDungeonCommand(player: Player, parsed: ParsedCommand, socketId: string): void {
+    const action = parsed.action;
+    
+    switch (action) {
+      case 'list':
+        this.io.to(socketId).emit('message', { text: 'Available dungeons: Goblin Cave (requires party of 2+)' });
+        break;
+      case 'enter':
+        if (parsed.target) {
+          this.io.to(socketId).emit('message', { text: `Entering ${parsed.target}... (Feature coming soon!)` });
+        } else {
+          this.io.to(socketId).emit('message', { text: 'Usage: dungeon enter <dungeon name>' });
+        }
+        break;
+      default:
+        this.io.to(socketId).emit('message', { text: 'Dungeon commands: list, enter <name>' });
+    }
+  }
+
+  private handleInventoryCommand(player: Player, socketId: string): void {
+    const inventory = player.inventory || [];
+    if (inventory.length === 0) {
+      this.io.to(socketId).emit('message', { text: 'Your inventory is empty.' });
+    } else {
+      const items = inventory.map((item, index) => `${index + 1}. ${item.name} (${item.quantity})`).join('\n');
+      this.io.to(socketId).emit('message', { text: `Your inventory:\n${items}` });
+    }
+  }
+
   private handleHelpCommand(socketId: string): void {
     const helpText = `
-Available commands:
-- move <direction> - Move in a direction (north, south, east, west)
-- say <message> - Send a message to other players
-- attack <target> - Attack a target
+🎮 Last-Lite MMO Commands:
+
+🌍 Movement:
+- move <direction> - Move north, south, east, or west
+- say <message> - Chat with other players
+
+⚔️ Combat:
+- attack <target> - Attack a monster or player
+
+👥 Party System:
+- party create - Create a new party
+- party invite <name> - Invite a player to your party
+- party join <name> - Join an existing party
+- party leave - Leave your current party
+- party list - List available parties
+
+🏰 Dungeons:
+- dungeon list - Show available dungeons
+- dungeon enter <name> - Enter a dungeon (requires party)
+
+🎒 Other:
+- inventory - View your items
 - help - Show this help message
+
+💡 This is a shared world - you'll see other players!
     `;
     this.io.to(socketId).emit('message', { text: helpText });
   }

@@ -1,12 +1,13 @@
 export interface ParsedCommand {
   command: string;
-  type: 'move' | 'attack' | 'cast' | 'loot' | 'look' | 'say' | 'inventory' | 'inv' | 'vendor' | 'buy' | 'sell' | 'quest' | 'pet' | 'help' | 'error';
+  type: 'move' | 'attack' | 'cast' | 'loot' | 'look' | 'say' | 'inventory' | 'inv' | 'vendor' | 'buy' | 'sell' | 'quest' | 'pet' | 'party' | 'dungeon' | 'help' | 'error';
   direction?: 'north' | 'south' | 'east' | 'west';
   target?: string;
   ability?: string;
   message?: string;
   error?: string;
   args?: string[];
+  action?: string;
   questAction?: 'list' | 'start' | 'status' | 'abandon';
   questId?: string;
   petAction?: 'list' | 'adopt' | 'summon' | 'dismiss' | 'use' | 'status';
@@ -48,6 +49,7 @@ export class CommandParser {
 
     switch (command) {
       case 'go':
+      case 'move':
         return { ...this.parseMovement(parts), command, args };
       case 'attack':
         return { ...this.parseAttack(parts), command, args };
@@ -72,6 +74,10 @@ export class CommandParser {
         return { ...this.parseQuest(parts), command, args };
       case 'pet':
         return { ...this.parsePet(parts), command, args };
+      case 'party':
+        return { ...this.parseParty(parts), command, args };
+      case 'dungeon':
+        return { ...this.parseDungeon(parts), command, args };
       case 'help':
         return { command, type: 'help', args };
       default:
@@ -315,5 +321,41 @@ export class CommandParser {
           message: `Unknown pet action: ${action}`
         };
     }
+  }
+
+  private parseParty(parts: string[]): Omit<ParsedCommand, 'command' | 'args'> {
+    if (parts.length < 2) {
+      return {
+        type: 'party',
+        action: 'list'
+      };
+    }
+
+    const action = parts[1];
+    const target = parts.length > 2 ? parts.slice(2).join(' ') : undefined;
+
+    return {
+      type: 'party',
+      action,
+      target
+    };
+  }
+
+  private parseDungeon(parts: string[]): Omit<ParsedCommand, 'command' | 'args'> {
+    if (parts.length < 2) {
+      return {
+        type: 'dungeon',
+        action: 'list'
+      };
+    }
+
+    const action = parts[1];
+    const target = parts.length > 2 ? parts.slice(2).join(' ') : undefined;
+
+    return {
+      type: 'dungeon',
+      action,
+      target
+    };
   }
 }
