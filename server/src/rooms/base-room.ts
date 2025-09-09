@@ -46,6 +46,21 @@ export abstract class BaseRoom extends Room<WorldState> {
     this.vendorSystem = new VendorSystem();
     this.questSystem = new QuestSystem();
     this.petSystem = new PetSystem();
+    
+    // Make systems non-enumerable so they don't get serialized by Colyseus
+    Object.defineProperty(this, 'movementSystem', { enumerable: false });
+    Object.defineProperty(this, 'zoneService', { enumerable: false });
+    Object.defineProperty(this, 'transferService', { enumerable: false });
+    Object.defineProperty(this, 'commandParser', { enumerable: false });
+    Object.defineProperty(this, 'combatSystem', { enumerable: false });
+    Object.defineProperty(this, 'entitySystem', { enumerable: false });
+    Object.defineProperty(this, 'aiSystem', { enumerable: false });
+    Object.defineProperty(this, 'lootSystem', { enumerable: false });
+    Object.defineProperty(this, 'inventorySystem', { enumerable: false });
+    Object.defineProperty(this, 'vendorSystem', { enumerable: false });
+    Object.defineProperty(this, 'questSystem', { enumerable: false });
+    Object.defineProperty(this, 'petSystem', { enumerable: false });
+    
     this.initializeZones();
   }
 
@@ -109,9 +124,9 @@ export abstract class BaseRoom extends Room<WorldState> {
       this.movementSystem.step(deltaTime, player);
     });
 
-    // Temporarily disable AI system to test serialization
-    // const entities = this.entitySystem.getAllEntities();
-    // this.aiSystem.update(entities, new Map(Object.entries(this.state.players)), deltaTime);
+    // Update AI for all entities
+    const entities = this.entitySystem.getAllEntities();
+    this.aiSystem.update(entities, new Map(Object.entries(this.state.players)), deltaTime);
     
     // Update timestamp
     this.state.timestamp = Date.now();

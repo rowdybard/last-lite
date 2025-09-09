@@ -28,8 +28,8 @@ export class FieldRoom extends BaseRoom {
   }
 
   protected initializeZones(): void {
-    // Temporarily disable entity spawning to test serialization
-    // this.spawnFieldMobs();
+    // Spawn some mobs in the field
+    this.spawnFieldMobs();
   }
 
   private spawnFieldMobs(): void {
