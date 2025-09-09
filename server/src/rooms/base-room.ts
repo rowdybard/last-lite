@@ -67,6 +67,9 @@ export abstract class BaseRoom extends Room<WorldState> {
   onCreate(options: any) {
     this.setState(new WorldState());
     
+    // Disable automatic state synchronization to prevent Map serialization issues
+    this.setPatchRate(null);
+    
     // Set up tick loop
     this.setSimulationInterval(() => this.update(), 1000 / this.tickRate);
     
@@ -130,6 +133,14 @@ export abstract class BaseRoom extends Room<WorldState> {
     
     // Update timestamp
     this.state.timestamp = Date.now();
+    
+    // Manually broadcast state to all clients (since automatic sync is disabled)
+    this.broadcast('state', {
+      players: this.state.players,
+      entities: this.state.entities,
+      drops: this.state.drops,
+      timestamp: this.state.timestamp
+    });
   }
 
   protected handleCommand(client: Client, data: { text: string }): void {
