@@ -84,7 +84,36 @@ export class SocketGameServer {
       const homepagePath = path.join(clientDistPath, 'homepage.html');
       console.log('Homepage path:', homepagePath);
       console.log('Homepage exists:', fs.existsSync(homepagePath));
-      res.sendFile(homepagePath);
+      
+      if (fs.existsSync(homepagePath)) {
+        res.sendFile(homepagePath);
+      } else {
+        console.log('❌ Homepage not found, trying alternative locations...');
+        
+        // Try alternative locations
+        const altPaths = [
+          path.join(process.cwd(), 'client/src/homepage.html'),
+          path.join(process.cwd(), 'src/client/src/homepage.html'),
+          path.join(__dirname, '../../../client/src/homepage.html'),
+          path.join(__dirname, '../../../../client/src/homepage.html')
+        ];
+        
+        let found = false;
+        for (const altPath of altPaths) {
+          console.log('Checking alternative path:', altPath);
+          if (fs.existsSync(altPath)) {
+            console.log('✅ Found homepage at:', altPath);
+            res.sendFile(altPath);
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.log('❌ Homepage not found anywhere, sending 404');
+          res.status(404).send('Homepage not found');
+        }
+      }
     });
     
     // Serve game
@@ -93,7 +122,61 @@ export class SocketGameServer {
       const gamePath = path.join(clientDistPath, 'polished-game.html');
       console.log('Game path:', gamePath);
       console.log('Game file exists:', fs.existsSync(gamePath));
-      res.sendFile(gamePath);
+      
+      if (fs.existsSync(gamePath)) {
+        res.sendFile(gamePath);
+      } else {
+        console.log('❌ Game file not found, trying alternative locations...');
+        
+        // Try alternative locations
+        const altPaths = [
+          path.join(process.cwd(), 'client/src/polished-game.html'),
+          path.join(process.cwd(), 'src/client/src/polished-game.html'),
+          path.join(__dirname, '../../../client/src/polished-game.html'),
+          path.join(__dirname, '../../../../client/src/polished-game.html')
+        ];
+        
+        let found = false;
+        for (const altPath of altPaths) {
+          console.log('Checking alternative path:', altPath);
+          if (fs.existsSync(altPath)) {
+            console.log('✅ Found game file at:', altPath);
+            res.sendFile(altPath);
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.log('❌ Game file not found anywhere, serving fallback HTML');
+          // Serve a basic fallback HTML
+          const fallbackHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last-Lite MMO - Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .error { background: #ff4444; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .info { background: #4444ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Last-Lite MMO</h1>
+        <div class="error">Game file not found in expected location</div>
+        <div class="info">This is a fallback page. The game should be working, but there's a file path issue.</div>
+        <p>User data: ${req.query.user || 'No user data'}</p>
+        <p>Please check the server logs for more information.</p>
+    </div>
+</body>
+</html>`;
+          res.send(fallbackHtml);
+        }
+      }
     });
     
     // Health check
