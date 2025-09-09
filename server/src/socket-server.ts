@@ -21,6 +21,9 @@ export class SocketGameServer {
   private server: any;
   private rooms: Map<string, GameRoom> = new Map();
   private tickRate: number;
+  private users: Map<string, any> = new Map();
+  private parties: Map<string, any> = new Map();
+  private userSockets: Map<string, any> = new Map();
 
   constructor() {
     this.app = express();
@@ -42,8 +45,13 @@ export class SocketGameServer {
     // Serve static files
     this.app.use(express.static('../client/dist'));
     
-    // Serve polished UI as homepage
+    // Serve homepage
     this.app.get('/', (req, res) => {
+      res.sendFile('homepage.html', { root: '../client/src' });
+    });
+    
+    // Serve game
+    this.app.get('/game.html', (req, res) => {
       res.sendFile('polished-game.html', { root: '../client/dist' });
     });
     
@@ -57,6 +65,37 @@ export class SocketGameServer {
     this.io.on('connection', (socket) => {
       console.log(`Client ${socket.id} connected`);
       
+      // Account management
+      socket.on('login', (data: { username: string; password: string }) => {
+        this.handleLogin(socket, data);
+      });
+      
+      socket.on('register', (data: { username: string; password: string; characterName: string; characterClass: string }) => {
+        this.handleRegister(socket, data);
+      });
+      
+      // Party management
+      socket.on('create_party', (data: { name: string }) => {
+        this.handleCreateParty(socket, data);
+      });
+      
+      socket.on('join_party', (data: { name: string }) => {
+        this.handleJoinParty(socket, data);
+      });
+      
+      socket.on('leave_party', () => {
+        this.handleLeaveParty(socket);
+      });
+      
+      socket.on('invite_to_party', (data: { username: string }) => {
+        this.handleInviteToParty(socket, data);
+      });
+      
+      socket.on('get_parties', () => {
+        this.handleGetParties(socket);
+      });
+      
+      // Game room management
       socket.on('join_room', (data: { roomName: string; playerName: string; playerClass: string }) => {
         this.handleJoinRoom(socket, data);
       });
@@ -134,6 +173,168 @@ export class SocketGameServer {
         break;
       }
     }
+  }
+
+  // Account management handlers
+  private handleLogin(socket: any, data: { username: string; password: string }): void {
+    const user = this.users.get(data.username);
+    if (user && user.password === data.password) {
+      this.userSockets.set(data.username, socket);
+      socket.emit('login_success', { user: { username: user.username, characterName: user.characterName, characterClass: user.characterClass } });
+    } else {
+      socket.emit('error', { message: 'Invalid username or password' });
+    }
+  }
+
+  private handleRegister(socket: any, data: { username: string; password: string; characterName: string; characterClass: string }): void {
+    if (this.users.has(data.username)) {
+      socket.emit('error', { message: 'Username already exists' });
+      return;
+    }
+
+    const user = {
+      username: data.username,
+      password: data.password,
+      characterName: data.characterName,
+      characterClass: data.characterClass,
+      createdAt: Date.now()
+    };
+
+    this.users.set(data.username, user);
+    socket.emit('register_success', { user });
+  }
+
+  // Party management handlers
+  private handleCreateParty(socket: any, data: { name: string }): void {
+    const username = this.getUsernameBySocket(socket);
+    if (!username) {
+      socket.emit('error', { message: 'You must be logged in to create a party' });
+      return;
+    }
+
+    if (this.parties.has(data.name)) {
+      socket.emit('error', { message: 'Party name already exists' });
+      return;
+    }
+
+    const party = {
+      id: data.name,
+      name: data.name,
+      leader: username,
+      members: [{ name: username, status: 'online' }],
+      createdAt: Date.now()
+    };
+
+    this.parties.set(data.name, party);
+    socket.emit('party_created', { party });
+    this.broadcastParties();
+  }
+
+  private handleJoinParty(socket: any, data: { name: string }): void {
+    const username = this.getUsernameBySocket(socket);
+    if (!username) {
+      socket.emit('error', { message: 'You must be logged in to join a party' });
+      return;
+    }
+
+    const party = this.parties.get(data.name);
+    if (!party) {
+      socket.emit('error', { message: 'Party not found' });
+      return;
+    }
+
+    // Remove user from any existing party
+    this.removeUserFromAllParties(username);
+
+    // Add user to new party
+    party.members.push({ name: username, status: 'online' });
+    socket.emit('party_joined', { party });
+    this.broadcastParties();
+  }
+
+  private handleLeaveParty(socket: any): void {
+    const username = this.getUsernameBySocket(socket);
+    if (!username) return;
+
+    this.removeUserFromAllParties(username);
+    socket.emit('party_left', {});
+    this.broadcastParties();
+  }
+
+  private handleInviteToParty(socket: any, data: { username: string }): void {
+    const inviter = this.getUsernameBySocket(socket);
+    if (!inviter) {
+      socket.emit('error', { message: 'You must be logged in to invite someone' });
+      return;
+    }
+
+    const targetSocket = this.userSockets.get(data.username);
+    if (!targetSocket) {
+      socket.emit('error', { message: 'User not found or not online' });
+      return;
+    }
+
+    const party = this.getUserParty(inviter);
+    if (!party) {
+      socket.emit('error', { message: 'You must be in a party to invite someone' });
+      return;
+    }
+
+    targetSocket.emit('invite_received', { 
+      partyName: party.name, 
+      inviter: inviter 
+    });
+    socket.emit('invite_sent', { username: data.username });
+  }
+
+  private handleGetParties(socket: any): void {
+    const partiesList = Array.from(this.parties.values()).map(party => ({
+      id: party.id,
+      name: party.name,
+      leader: party.leader,
+      memberCount: party.members.length,
+      members: party.members
+    }));
+    socket.emit('parties_list', { parties: partiesList });
+  }
+
+  // Helper methods
+  private getUsernameBySocket(socket: any): string | null {
+    for (const [username, userSocket] of this.userSockets) {
+      if (userSocket === socket) {
+        return username;
+      }
+    }
+    return null;
+  }
+
+  private removeUserFromAllParties(username: string): void {
+    for (const [partyName, party] of this.parties) {
+      party.members = party.members.filter((member: any) => member.name !== username);
+      if (party.members.length === 0) {
+        this.parties.delete(partyName);
+      }
+    }
+  }
+
+  private getUserParty(username: string): any | null {
+    for (const party of this.parties.values()) {
+      if (party.members.some((member: any) => member.name === username)) {
+        return party;
+      }
+    }
+    return null;
+  }
+
+  private broadcastParties(): void {
+    const partiesList = Array.from(this.parties.values()).map(party => ({
+      id: party.id,
+      name: party.name,
+      leader: party.leader,
+      memberCount: party.members.length,
+      members: party.members
+    }));
+    this.io.emit('parties_updated', { parties: partiesList });
   }
 
   private startGameLoop(): void {
