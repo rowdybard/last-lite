@@ -461,6 +461,8 @@
         let isConnected = false;
         let currentRoom = 'Connecting...';
         let playerName = 'Player_' + Math.random().toString(36).substr(2, 6);
+        let playerClass = 'Warrior';
+        let userData = null;
 
         function addMessage(text, type = 'system') {
             const worldFeed = document.getElementById('world-feed');
@@ -534,8 +536,23 @@
                 return;
             }
 
+            // Get user data from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            if (userParam) {
+                try {
+                    userData = JSON.parse(decodeURIComponent(userParam));
+                    playerName = userData.characterName;
+                    playerClass = userData.characterClass;
+                    addMessage(`Welcome back, ${playerName} the ${playerClass}!`, 'system');
+                } catch (e) {
+                    addMessage('Error parsing user data, using default', 'error');
+                }
+            }
+
             addMessage('Connecting to server...', 'system');
-            socket = io('http://localhost:3000');
+            // Connect to the current server (works for both local and production)
+            socket = io();
 
             socket.on('connect', () => {
                 addMessage(`Connected to server! Socket ID: ${socket.id}`, 'system');
@@ -586,7 +603,7 @@
             socket.emit('join_room', {
                 roomName: 'world_hub',
                 playerName: playerName,
-                playerClass: 'Warrior'
+                playerClass: playerClass
             });
             
             currentRoom = 'Hub';
