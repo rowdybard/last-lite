@@ -22,10 +22,10 @@ export async function createServer(): Promise<any> {
   // Serve static files from client build
   // Try multiple possible paths for deployment flexibility
   const possiblePaths = [
-    path.join(__dirname, '../../client/dist'),  // Local development
-    path.join(__dirname, '../client/dist'),     // Alternative deployment
-    path.join(process.cwd(), 'client/dist'),    // From project root
-    path.join(process.cwd(), 'src/client/dist') // Render deployment
+    path.join(__dirname, '../client/dist'),     // New structure: src/server -> src/client
+    path.join(__dirname, '../../client/dist'),  // Old structure fallback
+    path.join(process.cwd(), 'src/client/dist'), // From project root
+    path.join(process.cwd(), 'client/dist')     // Alternative fallback
   ];
   
   let clientBuildPath = possiblePaths.find(p => {

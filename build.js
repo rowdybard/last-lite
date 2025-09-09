@@ -15,16 +15,16 @@ try {
 
   // Build server
   console.log('🔨 Building server...');
-  execSync('cd server && npm ci && npm run build', { stdio: 'inherit' });
+  execSync('cd src/server && npm ci && npm run build', { stdio: 'inherit' });
 
   // Build client
   console.log('🔨 Building client...');
-  execSync('cd client && npm ci && npm run build', { stdio: 'inherit' });
+  execSync('cd src/client && npm ci && npm run build', { stdio: 'inherit' });
 
   // Verify builds
   console.log('✅ Verifying builds...');
-  const serverDist = path.join(process.cwd(), 'server', 'dist');
-  const clientDist = path.join(process.cwd(), 'client', 'dist');
+  const serverDist = path.join(process.cwd(), 'src', 'server', 'dist');
+  const clientDist = path.join(process.cwd(), 'src', 'client', 'dist');
 
   if (!fs.existsSync(serverDist)) {
     throw new Error('Server build failed - dist directory not found');
