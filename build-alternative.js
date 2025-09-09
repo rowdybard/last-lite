@@ -46,20 +46,103 @@ try {
   const srcPath = path.join(clientPath, 'src');
   const distPath = path.join(clientPath, 'dist');
   
+  console.log('Source path:', srcPath);
+  console.log('Dist path:', distPath);
+  console.log('Source exists:', fs.existsSync(srcPath));
+  console.log('Dist exists:', fs.existsSync(distPath));
+  
+  // List files in src directory
+  if (fs.existsSync(srcPath)) {
+    const srcFiles = fs.readdirSync(srcPath);
+    console.log('Files in src:', srcFiles);
+  }
+  
+  // Ensure dist directory exists
+  if (!fs.existsSync(distPath)) {
+    console.log('Creating dist directory...');
+    fs.mkdirSync(distPath, { recursive: true });
+  }
+  
   // Copy homepage.html
   const homepageSrc = path.join(srcPath, 'homepage.html');
   const homepageDist = path.join(distPath, 'homepage.html');
+  console.log('Homepage src:', homepageSrc);
+  console.log('Homepage dist:', homepageDist);
+  console.log('Homepage src exists:', fs.existsSync(homepageSrc));
+  
   if (fs.existsSync(homepageSrc)) {
-    fs.copyFileSync(homepageSrc, homepageDist);
-    console.log('✅ Copied homepage.html to dist');
+    try {
+      fs.copyFileSync(homepageSrc, homepageDist);
+      console.log('✅ Copied homepage.html to dist');
+    } catch (error) {
+      console.error('❌ Failed to copy homepage.html:', error.message);
+    }
+  } else {
+    console.error('❌ homepage.html not found in src directory');
+    
+    // Try to find the file in alternative locations
+    console.log('🔍 Searching for homepage.html in alternative locations...');
+    const searchPaths = [
+      path.join(process.cwd(), 'client/src/homepage.html'),
+      path.join(process.cwd(), 'src/client/src/homepage.html'),
+      path.join(clientPath, 'homepage.html'),
+      path.join(clientPath, 'src/homepage.html')
+    ];
+    
+    for (const searchPath of searchPaths) {
+      console.log('Checking:', searchPath);
+      if (fs.existsSync(searchPath)) {
+        console.log('✅ Found homepage.html at:', searchPath);
+        try {
+          fs.copyFileSync(searchPath, homepageDist);
+          console.log('✅ Copied homepage.html from alternative location');
+          break;
+        } catch (error) {
+          console.error('❌ Failed to copy from alternative location:', error.message);
+        }
+      }
+    }
   }
   
   // Copy polished-game.html
   const gameSrc = path.join(srcPath, 'polished-game.html');
   const gameDist = path.join(distPath, 'polished-game.html');
+  console.log('Game src:', gameSrc);
+  console.log('Game dist:', gameDist);
+  console.log('Game src exists:', fs.existsSync(gameSrc));
+  
   if (fs.existsSync(gameSrc)) {
-    fs.copyFileSync(gameSrc, gameDist);
-    console.log('✅ Copied polished-game.html to dist');
+    try {
+      fs.copyFileSync(gameSrc, gameDist);
+      console.log('✅ Copied polished-game.html to dist');
+    } catch (error) {
+      console.error('❌ Failed to copy polished-game.html:', error.message);
+    }
+  } else {
+    console.error('❌ polished-game.html not found in src directory');
+    
+    // Try to find the file in alternative locations
+    console.log('🔍 Searching for polished-game.html in alternative locations...');
+    const searchPaths = [
+      path.join(process.cwd(), 'client/src/polished-game.html'),
+      path.join(process.cwd(), 'src/client/src/polished-game.html'),
+      path.join(clientPath, 'polished-game.html'),
+      path.join(clientPath, 'src/polished-game.html')
+    ];
+    
+    for (const searchPath of searchPaths) {
+      console.log('Checking:', searchPath);
+      if (fs.existsSync(searchPath)) {
+        console.log('✅ Found polished-game.html at:', searchPath);
+        try {
+          fs.copyFileSync(searchPath, gameDist);
+          console.log('✅ Copied polished-game.html from alternative location');
+          break;
+        } catch (error) {
+          console.error('❌ Failed to copy from alternative location:', error.message);
+        }
+      }
+    }
   }
 
   // Verify builds
