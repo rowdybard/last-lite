@@ -606,6 +606,12 @@
                 addMessage('Server connection test successful!', 'system');
             });
 
+            // Handle direct test message
+            socket.on('test_message', (data) => {
+                console.log('Received test_message from server:', data);
+                addMessage('Direct test message received!', 'system');
+            });
+
             socket.on('player_joined', (data) => {
                 addMessage(`🎉 ${data.playerName} joined the game!`, 'system');
             });

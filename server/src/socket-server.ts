@@ -627,7 +627,11 @@ export class SocketGameServer {
       });
       
       // Send a test message immediately to verify connection
+      console.log(`Sending test message to socket ${socket.id}`);
       socket.emit('message', { text: 'Test connection message from server' });
+      
+      // Also try a different event name
+      socket.emit('test_message', { text: 'Direct test message' });
       
       // Handle test ping from client
       socket.on('test_ping', (data) => {
@@ -1285,10 +1289,19 @@ class GameRoom {
 💡 This is a shared world - you'll see other players!
     `;
     console.log(`Emitting message to socket ${socketId}:`, { text: helpText });
-    this.io.to(socketId).emit('message', { text: helpText });
     
-    // Also try emitting to the room as a fallback
+    // Try multiple emission methods
+    this.io.to(socketId).emit('message', { text: helpText });
     this.io.emit('message', { text: helpText });
+    
+    // Try emitting to the specific socket directly
+    const socket = this.io.sockets.sockets.get(socketId);
+    if (socket) {
+      console.log(`Found socket ${socketId}, emitting directly`);
+      socket.emit('message', { text: helpText });
+    } else {
+      console.log(`Socket ${socketId} not found in socket map`);
+    }
   }
 
   private findEntityByName(name: string): Entity | null {
