@@ -511,7 +511,7 @@
             });
 
             socket.on('login_success', (data) => {
-                currentUser = data.user;
+                currentUser = data;
                 showUserInfo();
                 loadParties();
             });
@@ -728,9 +728,13 @@
         }
 
         function showUserInfo() {
-            document.getElementById('current-user').textContent = currentUser.username;
-            document.getElementById('current-character').textContent = currentUser.characterName;
-            document.getElementById('current-class').textContent = currentUser.characterClass;
+            if (!currentUser) {
+                console.error('showUserInfo called but currentUser is undefined');
+                return;
+            }
+            document.getElementById('current-user').textContent = currentUser.username || 'Unknown';
+            document.getElementById('current-character').textContent = currentUser.characterName || 'Unknown';
+            document.getElementById('current-class').textContent = currentUser.characterClass || 'Unknown';
             document.getElementById('user-info').classList.remove('hidden');
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('register-form').classList.add('hidden');
