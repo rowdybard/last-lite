@@ -557,6 +557,7 @@
             socket = io();
 
             socket.on('connect', () => {
+                console.log('Connected to server, socket ID:', socket.id);
                 addMessage(`Connected to server! Socket ID: ${socket.id}`, 'system');
                 updateConnectionStatus(true);
                 joinGame();
@@ -581,6 +582,11 @@
             socket.on('message', (message) => {
                 console.log('Received message from server:', message);
                 addMessage(message.text, 'system');
+            });
+
+            // Debug: Listen for all events
+            socket.onAny((eventName, ...args) => {
+                console.log('Socket event received:', eventName, args);
             });
 
             socket.on('player_joined', (data) => {

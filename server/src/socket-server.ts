@@ -1257,6 +1257,9 @@ class GameRoom {
     `;
     console.log(`Emitting message to socket ${socketId}:`, { text: helpText });
     this.io.to(socketId).emit('message', { text: helpText });
+    
+    // Also try emitting to the room as a fallback
+    this.io.emit('message', { text: helpText });
   }
 
   private findEntityByName(name: string): Entity | null {
