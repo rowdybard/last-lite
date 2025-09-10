@@ -579,7 +579,8 @@
             });
 
             socket.on('message', (message) => {
-                addMessage(message.text, 'player');
+                console.log('Received message from server:', message);
+                addMessage(message.text, 'system');
             });
 
             socket.on('player_joined', (data) => {
