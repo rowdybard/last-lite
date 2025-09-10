@@ -18,7 +18,7 @@ export interface UserRegistrationData {
 }
 
 export class UserService {
-  private db: DatabaseConnection;
+  public db: DatabaseConnection;
 
   constructor() {
     this.db = DatabaseConnection.getInstance();

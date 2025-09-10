@@ -50,11 +50,66 @@ export class SocketGameServer {
       const isConnected = await db.testConnection();
       if (isConnected) {
         console.log('✅ Database connection established');
+        
+        // Check if users table exists, if not create it
+        await this.ensureUsersTable();
       } else {
         console.log('❌ Database connection failed');
       }
     } catch (error) {
       console.error('Database initialization error:', error);
+    }
+  }
+
+  private async ensureUsersTable(): Promise<void> {
+    try {
+      // Check if users table exists
+      const result = await this.userService.db.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      `);
+      
+      if (result.rows.length === 0) {
+        console.log('📋 Creating users table...');
+        await this.userService.db.query(`
+          CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            character_name VARCHAR(50) UNIQUE NOT NULL,
+            character_class VARCHAR(20) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+        
+        // Create trigger for updated_at
+        await this.userService.db.query(`
+          CREATE OR REPLACE FUNCTION update_users_updated_at()
+          RETURNS TRIGGER AS $$
+          BEGIN
+            NEW.updated_at = CURRENT_TIMESTAMP;
+            RETURN NEW;
+          END;
+          $$ language 'plpgsql';
+        `);
+        
+        await this.userService.db.query(`
+          DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+          CREATE TRIGGER update_users_updated_at
+            BEFORE UPDATE ON users
+            FOR EACH ROW
+            EXECUTE FUNCTION update_users_updated_at();
+        `);
+        
+        console.log('✅ Users table created successfully');
+      } else {
+        console.log('✅ Users table already exists');
+      }
+    } catch (error) {
+      console.error('Error ensuring users table:', error);
     }
   }
 
