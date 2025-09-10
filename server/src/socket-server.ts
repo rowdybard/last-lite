@@ -574,36 +574,21 @@ export class SocketGameServer {
       console.log('Game path:', gamePath);
       console.log('Game file exists:', fs.existsSync(gamePath));
       
-      if (fs.existsSync(gamePath)) {
+      // Try source directory first (more reliable on Render.com)
+      const sourcePath = path.join(process.cwd(), 'client/src/polished-game.html');
+      console.log('Game source path:', sourcePath);
+      console.log('Game source exists:', fs.existsSync(sourcePath));
+      
+      if (fs.existsSync(sourcePath)) {
+        console.log('✅ Serving from source directory');
+        res.sendFile(sourcePath);
+      } else if (fs.existsSync(gamePath)) {
+        console.log('✅ Serving from dist directory');
         res.sendFile(gamePath);
       } else {
-        console.log('❌ Game file not found, trying alternative locations...');
-        
-        // Try alternative locations
-        const altPaths = [
-          path.join(process.cwd(), 'client/src/polished-game.html'),
-          path.join(process.cwd(), 'src/client/src/polished-game.html'),
-          path.join(__dirname, '../../../client/src/polished-game.html'),
-          path.join(__dirname, '../../../../client/src/polished-game.html')
-        ];
-        
-        let found = false;
-        for (const altPath of altPaths) {
-          console.log('Checking alternative path:', altPath);
-          if (fs.existsSync(altPath)) {
-            console.log('✅ Found game file at:', altPath);
-            res.sendFile(altPath);
-            found = true;
-            break;
-          }
-        }
-        
-        if (!found) {
-          console.log('❌ Game file not found anywhere, serving embedded game HTML');
-          // Serve the actual game HTML embedded in the server
-          const gameHtml = this.getEmbeddedGameHtml();
-          res.send(gameHtml);
-        }
+        console.log('❌ Game file not found anywhere, serving embedded game HTML');
+        const gameHtml = this.getEmbeddedGameHtml();
+        res.send(gameHtml);
       }
     });
     
