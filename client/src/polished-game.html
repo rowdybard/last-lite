@@ -65,6 +65,39 @@
             gap: 20px;
         }
 
+        .minimap-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #00ff00;
+        }
+
+        .minimap {
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            position: relative;
+            margin: 10px auto;
+        }
+
+        .minimap-cell {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .minimap-player {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 10;
+            box-shadow: 0 0 5px #00ff00;
+        }
+
         .panel {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #00ff00;
@@ -424,6 +457,16 @@
                     </div>
                 </div>
 
+                <div class="minimap-panel">
+                    <h3>🗺️ Minimap</h3>
+                    <div class="minimap" id="minimap">
+                        <div class="minimap-player" id="minimap-player"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; font-size: 0.9em; color: #00ff00;">
+                        <div>Position: <span id="player-position">0, 0</span></div>
+                    </div>
+                </div>
+
                 <div class="panel">
                     <h3>🎯 Quick Actions</h3>
                     <button class="btn btn-secondary" onclick="sendCommand('party invite')" style="width: 100%; margin-bottom: 5px;">
@@ -525,6 +568,42 @@
             }
         }
 
+        function updateMinimap() {
+            if (!gameState || !gameState.players) return;
+            
+            // Find the current player
+            const currentPlayer = Object.values(gameState.players).find(p => p.name === playerName);
+            if (!currentPlayer) return;
+            
+            // Update position display
+            const positionElement = document.getElementById('player-position');
+            if (positionElement) {
+                positionElement.textContent = `${Math.round(currentPlayer.pos.x)}, ${Math.round(currentPlayer.pos.z)}`;
+            }
+            
+            // Update minimap player position
+            const minimapPlayer = document.getElementById('minimap-player');
+            if (minimapPlayer) {
+                // Convert world coordinates to minimap coordinates (centered)
+                const minimapSize = 200;
+                const cellSize = 10;
+                const centerX = minimapSize / 2;
+                const centerZ = minimapSize / 2;
+                
+                // Scale factor to fit world coordinates in minimap
+                const scale = 2;
+                const mapX = centerX + (currentPlayer.pos.x * scale);
+                const mapZ = centerZ + (currentPlayer.pos.z * scale);
+                
+                // Keep player within minimap bounds
+                const clampedX = Math.max(4, Math.min(minimapSize - 4, mapX));
+                const clampedZ = Math.max(4, Math.min(minimapSize - 4, mapZ));
+                
+                minimapPlayer.style.left = `${clampedX}px`;
+                minimapPlayer.style.top = `${clampedZ}px`;
+            }
+        }
+
         function updatePartyList() {
             const partyList = document.getElementById('party-list');
             const partyStatus = document.getElementById('party-status');
@@ -604,6 +683,7 @@
                     console.log('State update received:', state);
                     gameState = state;
                     updatePlayerList();
+                    updateMinimap();
                     lastStateUpdate = now;
                 } else {
                     console.log('State update throttled (too frequent)');
