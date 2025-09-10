@@ -1304,6 +1304,9 @@ class GameRoom {
       
       // Also try a simple test message
       socket.emit('message', { text: 'Simple test message' });
+      
+      // Try alternative event name
+      socket.emit('game_message', { text: helpText });
     } else {
       console.log(`Socket ${socketId} not found in socket map`);
     }

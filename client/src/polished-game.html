@@ -458,6 +458,13 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Test if Socket.io loaded
+        console.log('Socket.io script loaded, io available:', typeof io !== 'undefined');
+        if (typeof io === 'undefined') {
+            console.error('Socket.io failed to load!');
+        }
+    </script>
+    <script>
         let socket = null;
         let gameState = null;
         let isConnected = false;
@@ -555,11 +562,16 @@
             addMessage('Connecting to server...', 'system');
             // Connect to the current server (works for both local and production)
             console.log('Attempting to connect to Socket.io server...');
+            console.log('Socket.io available:', typeof io !== 'undefined');
+            console.log('Current URL:', window.location.href);
+            
             socket = io({
                 transports: ['websocket', 'polling'],
                 timeout: 20000,
                 forceNew: true
             });
+            
+            console.log('Socket object created:', socket);
 
             socket.on('connect', () => {
                 console.log('Connected to server, socket ID:', socket.id);
@@ -593,10 +605,20 @@
             socket.on('message', (message) => {
                 console.log('Received message from server:', message);
                 console.log('Message text:', message.text);
+                console.log('Message type:', typeof message.text);
                 if (message.text) {
+                    console.log('Adding message to display:', message.text.substring(0, 50) + '...');
                     addMessage(message.text, 'system');
                 } else {
                     console.error('Message text is empty or undefined:', message);
+                }
+            });
+
+            // Also try a different event name as backup
+            socket.on('game_message', (message) => {
+                console.log('Received game_message from server:', message);
+                if (message.text) {
+                    addMessage(message.text, 'system');
                 }
             });
 
