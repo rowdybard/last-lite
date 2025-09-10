@@ -745,9 +745,11 @@ export class SocketGameServer {
         if (user) {
           this.userSockets.set(data.username, socket);
           socket.emit('login_success', { 
-            username: user.username, 
-            characterName: user.characterName, 
-            characterClass: user.characterClass 
+            user: {
+              username: user.username, 
+              characterName: user.characterName, 
+              characterClass: user.characterClass 
+            }
           });
         } else {
           socket.emit('error', { message: 'User not found' });
@@ -786,9 +788,11 @@ export class SocketGameServer {
       });
 
       socket.emit('register_success', { 
-        username: user.username,
-        characterName: user.characterName,
-        characterClass: user.characterClass
+        user: {
+          username: user.username,
+          characterName: user.characterName,
+          characterClass: user.characterClass
+        }
       });
     } catch (error) {
       console.error('Registration error:', error);
