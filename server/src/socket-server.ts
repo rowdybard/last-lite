@@ -33,7 +33,11 @@ export class SocketGameServer {
       cors: {
         origin: "*",
         methods: ["GET", "POST"]
-      }
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true,
+      pingTimeout: 60000,
+      pingInterval: 25000
     });
     this.tickRate = parseInt(process.env.TICK_RATE || '60');
     this.userService = new UserService();
@@ -613,6 +617,15 @@ export class SocketGameServer {
   private setupSocketHandlers(): void {
     this.io.on('connection', (socket) => {
       console.log(`Client ${socket.id} connected`);
+      console.log(`Socket transport: ${socket.conn.transport.name}`);
+      
+      socket.on('disconnect', (reason) => {
+        console.log(`Client ${socket.id} disconnected: ${reason}`);
+      });
+      
+      socket.on('error', (error) => {
+        console.error(`Socket error for ${socket.id}:`, error);
+      });
       
       // Send a test message immediately to verify connection
       socket.emit('message', { text: 'Test connection message from server' });

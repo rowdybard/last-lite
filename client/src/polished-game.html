@@ -554,7 +554,12 @@
 
             addMessage('Connecting to server...', 'system');
             // Connect to the current server (works for both local and production)
-            socket = io();
+            console.log('Attempting to connect to Socket.io server...');
+            socket = io({
+                transports: ['websocket', 'polling'],
+                timeout: 20000,
+                forceNew: true
+            });
 
             socket.on('connect', () => {
                 console.log('Connected to server, socket ID:', socket.id);
@@ -574,6 +579,7 @@
             });
 
             socket.on('connect_error', (error) => {
+                console.error('Socket.io connection error:', error);
                 addMessage(`Connection error: ${error.message}`, 'error');
                 updateConnectionStatus(false);
             });
