@@ -54,29 +54,10 @@ try {
   execSync('cd client && npm cache clean --force', { stdio: 'inherit' });
   execSync('cd client && npm install --no-optional --no-audit', { stdio: 'inherit' });
   
-  // Try building with TypeScript only first
-  console.log('🔨 Building client TypeScript...');
-  execSync('cd client && npx tsc', { stdio: 'inherit' });
-  
-  // Then try Vite build
-  console.log('🔨 Building client with Vite...');
-  execSync('cd client && npx vite build', { stdio: 'inherit' });
-
-  // Copy HTML files to dist (Vite build clears the directory)
-  console.log('📋 Copying HTML files to dist...');
+  // Copy HTML files BEFORE Vite build (since Vite clears the directory)
+  console.log('📋 Copying HTML files to dist BEFORE Vite build...');
   const srcPath = path.join(clientPath, 'src');
   const distPath = path.join(clientPath, 'dist');
-  
-  console.log('Source path:', srcPath);
-  console.log('Dist path:', distPath);
-  console.log('Source exists:', fs.existsSync(srcPath));
-  console.log('Dist exists:', fs.existsSync(distPath));
-  
-  // List files in src directory
-  if (fs.existsSync(srcPath)) {
-    const srcFiles = fs.readdirSync(srcPath);
-    console.log('Files in src:', srcFiles);
-  }
   
   // Ensure dist directory exists
   if (!fs.existsSync(distPath)) {
@@ -84,85 +65,35 @@ try {
     fs.mkdirSync(distPath, { recursive: true });
   }
   
-  // Copy homepage.html
-  const homepageSrc = path.join(srcPath, 'homepage.html');
-  const homepageDist = path.join(distPath, 'homepage.html');
-  console.log('Homepage src:', homepageSrc);
-  console.log('Homepage dist:', homepageDist);
-  console.log('Homepage src exists:', fs.existsSync(homepageSrc));
-  
-  if (fs.existsSync(homepageSrc)) {
-    try {
-      fs.copyFileSync(homepageSrc, homepageDist);
-      console.log('✅ Copied homepage.html to dist');
-    } catch (error) {
-      console.error('❌ Failed to copy homepage.html:', error.message);
-    }
-  } else {
-    console.error('❌ homepage.html not found in src directory');
-    
-    // Try to find the file in alternative locations
-    console.log('🔍 Searching for homepage.html in alternative locations...');
-    const searchPaths = [
-      path.join(process.cwd(), 'client/src/homepage.html'),
-      path.join(process.cwd(), 'src/client/src/homepage.html'),
-      path.join(clientPath, 'homepage.html'),
-      path.join(clientPath, 'src/homepage.html')
-    ];
-    
-    for (const searchPath of searchPaths) {
-      console.log('Checking:', searchPath);
-      if (fs.existsSync(searchPath)) {
-        console.log('✅ Found homepage.html at:', searchPath);
-        try {
-          fs.copyFileSync(searchPath, homepageDist);
-          console.log('✅ Copied homepage.html from alternative location');
-          break;
-        } catch (error) {
-          console.error('❌ Failed to copy from alternative location:', error.message);
-        }
-      }
+  // Copy HTML files
+  const htmlFiles = ['homepage.html', 'polished-game.html'];
+  for (const htmlFile of htmlFiles) {
+    const srcFile = path.join(srcPath, htmlFile);
+    const distFile = path.join(distPath, htmlFile);
+    if (fs.existsSync(srcFile)) {
+      fs.copyFileSync(srcFile, distFile);
+      console.log(`✅ Copied ${htmlFile} to dist`);
+    } else {
+      console.error(`❌ ${htmlFile} not found in src`);
     }
   }
   
-  // Copy polished-game.html
-  const gameSrc = path.join(srcPath, 'polished-game.html');
-  const gameDist = path.join(distPath, 'polished-game.html');
-  console.log('Game src:', gameSrc);
-  console.log('Game dist:', gameDist);
-  console.log('Game src exists:', fs.existsSync(gameSrc));
+  // Try building with TypeScript only first
+  console.log('🔨 Building client TypeScript...');
+  execSync('cd client && npx tsc', { stdio: 'inherit' });
   
-  if (fs.existsSync(gameSrc)) {
-    try {
-      fs.copyFileSync(gameSrc, gameDist);
-      console.log('✅ Copied polished-game.html to dist');
-    } catch (error) {
-      console.error('❌ Failed to copy polished-game.html:', error.message);
-    }
-  } else {
-    console.error('❌ polished-game.html not found in src directory');
-    
-    // Try to find the file in alternative locations
-    console.log('🔍 Searching for polished-game.html in alternative locations...');
-    const searchPaths = [
-      path.join(process.cwd(), 'client/src/polished-game.html'),
-      path.join(process.cwd(), 'src/client/src/polished-game.html'),
-      path.join(clientPath, 'polished-game.html'),
-      path.join(clientPath, 'src/polished-game.html')
-    ];
-    
-    for (const searchPath of searchPaths) {
-      console.log('Checking:', searchPath);
-      if (fs.existsSync(searchPath)) {
-        console.log('✅ Found polished-game.html at:', searchPath);
-        try {
-          fs.copyFileSync(searchPath, gameDist);
-          console.log('✅ Copied polished-game.html from alternative location');
-          break;
-        } catch (error) {
-          console.error('❌ Failed to copy from alternative location:', error.message);
-        }
-      }
+  // Then try Vite build (this will clear and rebuild, but our HTML files are already there)
+  console.log('🔨 Building client with Vite...');
+  execSync('cd client && npx vite build', { stdio: 'inherit' });
+  
+  // Re-copy HTML files after Vite build (in case it cleared them)
+  console.log('📋 Re-copying HTML files after Vite build...');
+  for (const htmlFile of htmlFiles) {
+    const srcFile = path.join(srcPath, htmlFile);
+    const distFile = path.join(distPath, htmlFile);
+    if (fs.existsSync(srcFile)) {
+      fs.copyFileSync(srcFile, distFile);
+      console.log(`✅ Re-copied ${htmlFile} to dist`);
     }
   }
 

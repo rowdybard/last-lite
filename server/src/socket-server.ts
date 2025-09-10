@@ -116,7 +116,8 @@ export class SocketGameServer {
     }
   }
 
-  private getEmbeddedHomepageHtml(): string {
+  // REMOVED: Embedded HTML methods - server now serves only from dist/
+  private getEmbeddedHomepageHtml_DEPRECATED(): string {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -305,7 +306,7 @@ export class SocketGameServer {
 </html>`;
   }
 
-  private getEmbeddedGameHtml(): string {
+  private getEmbeddedGameHtml_DEPRECATED(): string {
     // Use the working polished-game.html content
     const fs = require('fs');
     const path = require('path');
@@ -546,34 +547,11 @@ export class SocketGameServer {
       console.log('Homepage exists:', fs.existsSync(homepagePath));
       
       if (fs.existsSync(homepagePath)) {
+        console.log('✅ Serving homepage.html from dist');
         res.sendFile(homepagePath);
       } else {
-        console.log('❌ Homepage not found, trying alternative locations...');
-        
-        // Try alternative locations
-        const altPaths = [
-          path.join(process.cwd(), 'client/src/homepage.html'),
-          path.join(process.cwd(), 'src/client/src/homepage.html'),
-          path.join(__dirname, '../../../client/src/homepage.html'),
-          path.join(__dirname, '../../../../client/src/homepage.html')
-        ];
-        
-        let found = false;
-        for (const altPath of altPaths) {
-          console.log('Checking alternative path:', altPath);
-          if (fs.existsSync(altPath)) {
-            console.log('✅ Found homepage at:', altPath);
-            res.sendFile(altPath);
-            found = true;
-            break;
-          }
-        }
-        
-        if (!found) {
-          console.log('❌ Homepage not found anywhere, serving embedded homepage');
-          const homepageHtml = this.getEmbeddedHomepageHtml();
-          res.send(homepageHtml);
-        }
+        console.log('❌ Homepage not found in dist, returning 404');
+        res.status(404).send('Homepage not found. Please check build process.');
       }
     });
     
@@ -584,10 +562,13 @@ export class SocketGameServer {
       console.log('Game path:', gamePath);
       console.log('Game file exists:', fs.existsSync(gamePath));
       
-      // Force serving embedded HTML for debugging
-      console.log('🔧 DEBUGGING: Always serving embedded HTML');
-      const gameHtml = this.getEmbeddedGameHtml();
-      res.send(gameHtml);
+      if (fs.existsSync(gamePath)) {
+        console.log('✅ Serving polished-game.html from dist');
+        res.sendFile(gamePath);
+      } else {
+        console.log('❌ Game file not found in dist, returning 404');
+        res.status(404).send('Game file not found. Please check build process.');
+      }
     });
     
     // Health check
