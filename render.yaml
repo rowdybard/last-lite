@@ -9,15 +9,19 @@ services:
       echo "Contents:"
       ls -la
       
-      echo "=== Using alternative build script ==="
-      node build-alternative.js
+      echo "=== Building server ==="
+      cd server && npm ci && npm run build
+      
+      echo "=== Building client ==="
+      cd ../client && npm ci && npm run build
+      
+      echo "=== Copying HTML files to dist ==="
+      mkdir -p client/dist
+      cp client/src/homepage.html client/dist/homepage.html
+      cp client/src/polished-game.html client/dist/polished-game.html
       
       echo "=== Build verification ==="
-      echo "Final structure:"
-      ls -la
-      echo "Server dist:"
-      ls -la server/dist/
-      echo "Client dist:"
+      echo "Client dist contents:"
       ls -la client/dist/
       echo "=== Build complete ==="
     startCommand: cd server && node dist/socket-main.js
