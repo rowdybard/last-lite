@@ -599,7 +599,7 @@
             socket.on('state', (state) => {
                 gameState = state;
                 updatePlayerList();
-                addMessage('Game state updated', 'system');
+                // Remove spammy message - just update silently
             });
 
             socket.on('message', (message) => {
@@ -634,13 +634,13 @@
             // Handle test pong from server
             socket.on('test_pong', (data) => {
                 console.log('Received test pong from server:', data);
-                addMessage('Server connection test successful!', 'system');
+                // Remove spammy test messages
             });
 
             // Handle direct test message
             socket.on('test_message', (data) => {
                 console.log('Received test_message from server:', data);
-                addMessage('Direct test message received!', 'system');
+                // Remove spammy test messages
             });
 
             socket.on('player_joined', (data) => {
