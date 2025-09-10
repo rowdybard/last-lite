@@ -550,8 +550,16 @@ export class SocketGameServer {
         console.log('✅ Serving homepage.html from dist');
         res.sendFile(homepagePath);
       } else {
-        console.log('❌ Homepage not found in dist, returning 404');
-        res.status(404).send('Homepage not found. Please check build process.');
+        console.log('❌ Homepage not found in dist, serving from source');
+        // Read the file directly from source as fallback
+        const sourcePath = path.join(process.cwd(), 'client/src/homepage.html');
+        if (fs.existsSync(sourcePath)) {
+          console.log('✅ Serving homepage from source directory');
+          res.sendFile(sourcePath);
+        } else {
+          console.log('❌ Source homepage also not found, returning 404');
+          res.status(404).send('Homepage not found anywhere.');
+        }
       }
     });
     
@@ -566,8 +574,16 @@ export class SocketGameServer {
         console.log('✅ Serving polished-game.html from dist');
         res.sendFile(gamePath);
       } else {
-        console.log('❌ Game file not found in dist, returning 404');
-        res.status(404).send('Game file not found. Please check build process.');
+        console.log('❌ Game file not found in dist, serving embedded version');
+        // Read the file directly from source as fallback
+        const sourcePath = path.join(process.cwd(), 'client/src/polished-game.html');
+        if (fs.existsSync(sourcePath)) {
+          console.log('✅ Serving from source directory');
+          res.sendFile(sourcePath);
+        } else {
+          console.log('❌ Source file also not found, returning 404');
+          res.status(404).send('Game file not found anywhere.');
+        }
       }
     });
     
