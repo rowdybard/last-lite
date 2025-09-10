@@ -11,7 +11,7 @@ export class MovementSystem {
 
   constructor(config: MovementConfig) {
     this.config = {
-      friction: 0.95,
+      friction: 0.1, // Much less friction for more responsive movement
       ...config,
     };
   }

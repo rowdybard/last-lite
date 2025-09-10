@@ -1211,22 +1211,27 @@ class GameRoom {
 
   private handleMoveCommand(player: Player, parsed: ParsedCommand): void {
     if (parsed.direction) {
-      // Set velocity based on direction
-      const speed = 2;
+      // Move immediately by 1 unit in the specified direction
+      const moveDistance = 1;
       switch (parsed.direction) {
         case 'north':
-          player.vel.vz = -speed;
+          player.pos.z -= moveDistance;
           break;
         case 'south':
-          player.vel.vz = speed;
+          player.pos.z += moveDistance;
           break;
         case 'east':
-          player.vel.vx = speed;
+          player.pos.x += moveDistance;
           break;
         case 'west':
-          player.vel.vx = -speed;
+          player.pos.x -= moveDistance;
           break;
       }
+      
+      // Clamp position to world bounds
+      const bound = 20;
+      player.pos.x = Math.max(-bound, Math.min(bound, player.pos.x));
+      player.pos.z = Math.max(-bound, Math.min(bound, player.pos.z));
       
       // Send feedback message to the player
       this.io.to(this.name).emit('message', { 
@@ -1413,8 +1418,8 @@ class GameRoom {
   private lastBroadcast = 0;
   private broadcastState(): void {
     const now = Date.now();
-    // Throttle state broadcasts to max once every 2 seconds
-    if (now - this.lastBroadcast > 2000) {
+    // Throttle state broadcasts to max once every 500ms (more responsive)
+    if (now - this.lastBroadcast > 500) {
       this.io.to(this.name).emit('state', this.getState());
       this.lastBroadcast = now;
     }
