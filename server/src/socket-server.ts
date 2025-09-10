@@ -306,6 +306,16 @@ export class SocketGameServer {
   }
 
   private getEmbeddedGameHtml(): string {
+    // Use the working polished-game.html content
+    const fs = require('fs');
+    const path = require('path');
+    const gamePath = path.join(process.cwd(), 'client/src/polished-game.html');
+    
+    if (fs.existsSync(gamePath)) {
+      return fs.readFileSync(gamePath, 'utf8');
+    }
+    
+    // Fallback to basic HTML if file not found
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
