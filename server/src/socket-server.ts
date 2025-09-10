@@ -1298,7 +1298,12 @@ class GameRoom {
     const socket = this.io.sockets.sockets.get(socketId);
     if (socket) {
       console.log(`Found socket ${socketId}, emitting directly`);
+      console.log(`Help text length: ${helpText.length}`);
+      console.log(`Help text preview: ${helpText.substring(0, 100)}...`);
       socket.emit('message', { text: helpText });
+      
+      // Also try a simple test message
+      socket.emit('message', { text: 'Simple test message' });
     } else {
       console.log(`Socket ${socketId} not found in socket map`);
     }
