@@ -599,8 +599,8 @@
             let lastStateUpdate = 0;
             socket.on('state', (state) => {
                 const now = Date.now();
-                // Throttle state updates to max once per second
-                if (now - lastStateUpdate > 1000) {
+                // Throttle state updates to max once every 2 seconds
+                if (now - lastStateUpdate > 2000) {
                     console.log('State update received:', state);
                     gameState = state;
                     updatePlayerList();

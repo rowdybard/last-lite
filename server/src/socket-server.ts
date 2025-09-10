@@ -1171,6 +1171,12 @@ class GameRoom {
           player.vel.vx = -speed;
           break;
       }
+      
+      // Send feedback message to the player
+      this.io.to(this.name).emit('message', { 
+        text: `${player.name} moves ${parsed.direction}` 
+      });
+      
       this.broadcastState();
     }
   }
@@ -1351,8 +1357,8 @@ class GameRoom {
   private lastBroadcast = 0;
   private broadcastState(): void {
     const now = Date.now();
-    // Throttle state broadcasts to max once per second
-    if (now - this.lastBroadcast > 1000) {
+    // Throttle state broadcasts to max once every 2 seconds
+    if (now - this.lastBroadcast > 2000) {
       this.io.to(this.name).emit('state', this.getState());
       this.lastBroadcast = now;
     }
