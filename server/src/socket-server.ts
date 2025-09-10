@@ -551,14 +551,29 @@ export class SocketGameServer {
         res.sendFile(homepagePath);
       } else {
         console.log('❌ Homepage not found in dist, serving from source');
-        // Read the file directly from source as fallback
-        const sourcePath = path.join(process.cwd(), 'client/src/homepage.html');
-        if (fs.existsSync(sourcePath)) {
-          console.log('✅ Serving homepage from source directory');
-          res.sendFile(sourcePath);
-        } else {
-          console.log('❌ Source homepage also not found, returning 404');
-          res.status(404).send('Homepage not found anywhere.');
+        // Try multiple possible source paths
+        const possiblePaths = [
+          path.join(process.cwd(), 'client/src/homepage.html'),
+          path.join(process.cwd(), 'src/client/src/homepage.html'),
+          path.join(__dirname, '../../../client/src/homepage.html'),
+          path.join(__dirname, '../../../../client/src/homepage.html'),
+          path.join(__dirname, '../../client/src/homepage.html')
+        ];
+        
+        let found = false;
+        for (const sourcePath of possiblePaths) {
+          console.log('Checking homepage path:', sourcePath);
+          if (fs.existsSync(sourcePath)) {
+            console.log('✅ Found homepage at:', sourcePath);
+            res.sendFile(sourcePath);
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.log('❌ Homepage not found in any location');
+          res.status(404).send('Homepage not found anywhere. Check server logs for paths.');
         }
       }
     });
@@ -575,14 +590,31 @@ export class SocketGameServer {
         res.sendFile(gamePath);
       } else {
         console.log('❌ Game file not found in dist, serving embedded version');
-        // Read the file directly from source as fallback
-        const sourcePath = path.join(process.cwd(), 'client/src/polished-game.html');
-        if (fs.existsSync(sourcePath)) {
-          console.log('✅ Serving from source directory');
-          res.sendFile(sourcePath);
-        } else {
-          console.log('❌ Source file also not found, returning 404');
-          res.status(404).send('Game file not found anywhere.');
+        // Try multiple possible source paths
+        const possiblePaths = [
+          path.join(process.cwd(), 'client/src/polished-game.html'),
+          path.join(process.cwd(), 'src/client/src/polished-game.html'),
+          path.join(__dirname, '../../../client/src/polished-game.html'),
+          path.join(__dirname, '../../../../client/src/polished-game.html'),
+          path.join(__dirname, '../../client/src/polished-game.html')
+        ];
+        
+        let found = false;
+        for (const sourcePath of possiblePaths) {
+          console.log('Checking source path:', sourcePath);
+          if (fs.existsSync(sourcePath)) {
+            console.log('✅ Found game file at:', sourcePath);
+            res.sendFile(sourcePath);
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.log('❌ Game file not found in any location');
+          console.log('Current working directory:', process.cwd());
+          console.log('__dirname:', __dirname);
+          res.status(404).send('Game file not found anywhere. Check server logs for paths.');
         }
       }
     });
