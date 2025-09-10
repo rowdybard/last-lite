@@ -42,7 +42,6 @@ export class SocketGameServer {
     this.tickRate = parseInt(process.env.TICK_RATE || '60');
     this.userService = new UserService();
     
-    this.initializeDatabase();
     this.setupRoutes();
     this.setupSocketHandlers();
     this.startGameLoop();
@@ -976,11 +975,19 @@ export class SocketGameServer {
     }, 1000 / this.tickRate);
   }
 
-  public start(port: number = 3000): void {
-    this.server.listen(port, () => {
-      console.log(`🚀 Socket.io server running on port ${port}`);
-      console.log(`📊 Health check: http://localhost:${port}/healthz`);
-    });
+  public async start(port: number = 3000): Promise<void> {
+    try {
+      console.log('🔧 Initializing database...');
+      await this.initializeDatabase();
+      
+      this.server.listen(port, () => {
+        console.log(`🚀 Socket.io server running on port ${port}`);
+        console.log(`📊 Health check: http://localhost:${port}/healthz`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    }
   }
 }
 
