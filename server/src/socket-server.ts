@@ -574,22 +574,10 @@ export class SocketGameServer {
       console.log('Game path:', gamePath);
       console.log('Game file exists:', fs.existsSync(gamePath));
       
-      // Try source directory first (more reliable on Render.com)
-      const sourcePath = path.join(process.cwd(), 'client/src/polished-game.html');
-      console.log('Game source path:', sourcePath);
-      console.log('Game source exists:', fs.existsSync(sourcePath));
-      
-      if (fs.existsSync(sourcePath)) {
-        console.log('✅ Serving from source directory');
-        res.sendFile(sourcePath);
-      } else if (fs.existsSync(gamePath)) {
-        console.log('✅ Serving from dist directory');
-        res.sendFile(gamePath);
-      } else {
-        console.log('❌ Game file not found anywhere, serving embedded game HTML');
-        const gameHtml = this.getEmbeddedGameHtml();
-        res.send(gameHtml);
-      }
+      // Force serving embedded HTML for debugging
+      console.log('🔧 DEBUGGING: Always serving embedded HTML');
+      const gameHtml = this.getEmbeddedGameHtml();
+      res.send(gameHtml);
     });
     
     // Health check
