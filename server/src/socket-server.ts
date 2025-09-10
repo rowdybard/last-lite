@@ -720,7 +720,7 @@ export class SocketGameServer {
       // Send initial state to the player
       const gameState = room.getState();
       console.log(`Sending game state to ${socket.id}:`, gameState);
-      socket.emit('game_state', gameState);
+      socket.emit('state', gameState);
       
       // Notify other players in the room
       socket.to(roomName).emit('player_joined', {
@@ -765,10 +765,12 @@ export class SocketGameServer {
 
   private handleCommand(socket: any, data: { command: string }): void {
     console.log(`Handling command from socket ${socket.id}:`, data.command);
+    console.log(`Available rooms:`, Array.from(this.rooms.keys()));
     
     // Find which room the player is in
     let found = false;
     for (const [roomName, room] of this.rooms) {
+      console.log(`Checking room ${roomName}, has player ${socket.id}:`, room.hasPlayer(socket.id));
       if (room.hasPlayer(socket.id)) {
         console.log(`Player found in room ${roomName}, processing command`);
         room.handleCommand(socket.id, data.command);
@@ -779,7 +781,7 @@ export class SocketGameServer {
     
     if (!found) {
       console.log(`Player ${socket.id} not found in any room`);
-      socket.emit('message', { message: 'You are not in a room. Please join a room first.', type: 'error' });
+      socket.emit('message', { text: 'You are not in a room. Please join a room first.' });
     }
   }
 
