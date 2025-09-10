@@ -614,6 +614,15 @@ export class SocketGameServer {
     this.io.on('connection', (socket) => {
       console.log(`Client ${socket.id} connected`);
       
+      // Send a test message immediately to verify connection
+      socket.emit('message', { text: 'Test connection message from server' });
+      
+      // Handle test ping from client
+      socket.on('test_ping', (data) => {
+        console.log('Received test ping from client:', data);
+        socket.emit('test_pong', { message: 'Hello client! Server received your ping.' });
+      });
+      
       // Account management
       socket.on('login', async (data: { username: string; password: string }) => {
         await this.handleLogin(socket, data);

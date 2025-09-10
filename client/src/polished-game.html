@@ -560,6 +560,11 @@
                 console.log('Connected to server, socket ID:', socket.id);
                 addMessage(`Connected to server! Socket ID: ${socket.id}`, 'system');
                 updateConnectionStatus(true);
+                
+                // Test the connection immediately
+                console.log('Testing connection with ping...');
+                socket.emit('test_ping', { message: 'Hello server!' });
+                
                 joinGame();
             });
 
@@ -587,6 +592,12 @@
             // Debug: Listen for all events
             socket.onAny((eventName, ...args) => {
                 console.log('Socket event received:', eventName, args);
+            });
+
+            // Handle test pong from server
+            socket.on('test_pong', (data) => {
+                console.log('Received test pong from server:', data);
+                addMessage('Server connection test successful!', 'system');
             });
 
             socket.on('player_joined', (data) => {
