@@ -1056,10 +1056,60 @@ class GameRoom {
     // Initialize room-specific content
     if (this.name === 'world_hub') {
       // Hub-specific initialization
+      this.spawnHubFeatures();
     } else if (this.name.startsWith('world_field_')) {
       // Field-specific initialization
       this.spawnFieldMobs();
     }
+  }
+
+  private spawnHubFeatures(): void {
+    // Spawn vendor NPCs
+    this.systems.entity.spawnEntity({
+      id: 'vendor-equipment',
+      name: 'Equipment Vendor',
+      type: 'npc' as any,
+      pos: { x: 5, y: 0, z: 0 },
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      spawnPos: { x: 5, y: 0, z: 0 }
+    });
+
+    this.systems.entity.spawnEntity({
+      id: 'vendor-potions',
+      name: 'Potion Vendor',
+      type: 'npc' as any,
+      pos: { x: -5, y: 0, z: 0 },
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      spawnPos: { x: -5, y: 0, z: 0 }
+    });
+
+    // Spawn zone doors
+    this.systems.entity.spawnEntity({
+      id: 'door-field-1',
+      name: 'Field Entrance',
+      type: 'door' as any,
+      pos: { x: 0, y: 0, z: 8 },
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      spawnPos: { x: 0, y: 0, z: 8 }
+    });
+
+    // Spawn buildings
+    this.systems.entity.spawnEntity({
+      id: 'building-inn',
+      name: 'Traveler\'s Inn',
+      type: 'building' as any,
+      pos: { x: 8, y: 0, z: 8 },
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      spawnPos: { x: 8, y: 0, z: 8 }
+    });
   }
 
   private spawnFieldMobs(): void {

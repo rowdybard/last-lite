@@ -88,6 +88,13 @@
             border: 1px solid rgba(0, 255, 0, 0.3);
         }
 
+        .minimap-terrain {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            background: rgba(0, 100, 0, 0.3);
+        }
+
         .minimap-player {
             width: 8px;
             height: 8px;
@@ -96,6 +103,32 @@
             position: absolute;
             z-index: 10;
             box-shadow: 0 0 5px #00ff00;
+        }
+
+        .minimap-other-player {
+            width: 6px;
+            height: 6px;
+            background: #ffff00;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 9;
+            box-shadow: 0 0 3px #ffff00;
+        }
+
+        .minimap-building {
+            width: 8px;
+            height: 8px;
+            background: #8B4513;
+            position: absolute;
+            z-index: 8;
+        }
+
+        .minimap-door {
+            width: 6px;
+            height: 6px;
+            background: #FFD700;
+            position: absolute;
+            z-index: 8;
         }
 
         .panel {
@@ -581,26 +614,80 @@
                 positionElement.textContent = `${Math.round(currentPlayer.pos.x)}, ${Math.round(currentPlayer.pos.z)}`;
             }
             
-            // Update minimap player position
+            // Clear existing minimap elements
+            const minimap = document.getElementById('minimap');
+            if (!minimap) return;
+            
+            // Remove all existing elements except the player
+            const existingElements = minimap.querySelectorAll('.minimap-other-player, .minimap-building, .minimap-door, .minimap-terrain');
+            existingElements.forEach(el => el.remove());
+            
+            // Convert world coordinates to minimap coordinates (centered)
+            const minimapSize = 200;
+            const centerX = minimapSize / 2;
+            const centerZ = minimapSize / 2;
+            const scale = 2;
+            
+            // Update player position
             const minimapPlayer = document.getElementById('minimap-player');
             if (minimapPlayer) {
-                // Convert world coordinates to minimap coordinates (centered)
-                const minimapSize = 200;
-                const cellSize = 10;
-                const centerX = minimapSize / 2;
-                const centerZ = minimapSize / 2;
-                
-                // Scale factor to fit world coordinates in minimap
-                const scale = 2;
                 const mapX = centerX + (currentPlayer.pos.x * scale);
                 const mapZ = centerZ + (currentPlayer.pos.z * scale);
-                
-                // Keep player within minimap bounds
                 const clampedX = Math.max(4, Math.min(minimapSize - 4, mapX));
                 const clampedZ = Math.max(4, Math.min(minimapSize - 4, mapZ));
                 
                 minimapPlayer.style.left = `${clampedX}px`;
                 minimapPlayer.style.top = `${clampedZ}px`;
+            }
+            
+            // Add other players
+            if (gameState.players) {
+                Object.values(gameState.players).forEach(player => {
+                    if (player.name !== playerName) {
+                        const mapX = centerX + (player.pos.x * scale);
+                        const mapZ = centerZ + (player.pos.z * scale);
+                        const clampedX = Math.max(3, Math.min(minimapSize - 3, mapX));
+                        const clampedZ = Math.max(3, Math.min(minimapSize - 3, mapZ));
+                        
+                        const otherPlayer = document.createElement('div');
+                        otherPlayer.className = 'minimap-other-player';
+                        otherPlayer.style.left = `${clampedX}px`;
+                        otherPlayer.style.top = `${clampedZ}px`;
+                        otherPlayer.title = player.name;
+                        minimap.appendChild(otherPlayer);
+                    }
+                });
+            }
+            
+            // Add entities (NPCs, buildings, doors)
+            if (gameState.entities) {
+                Object.values(gameState.entities).forEach(entity => {
+                    const mapX = centerX + (entity.pos.x * scale);
+                    const mapZ = centerZ + (entity.pos.z * scale);
+                    const clampedX = Math.max(4, Math.min(minimapSize - 4, mapX));
+                    const clampedZ = Math.max(4, Math.min(minimapSize - 4, mapZ));
+                    
+                    let element;
+                    if (entity.type === 'npc') {
+                        element = document.createElement('div');
+                        element.className = 'minimap-building';
+                        element.style.background = '#4169E1'; // Blue for NPCs
+                    } else if (entity.type === 'door') {
+                        element = document.createElement('div');
+                        element.className = 'minimap-door';
+                    } else if (entity.type === 'building') {
+                        element = document.createElement('div');
+                        element.className = 'minimap-building';
+                    } else {
+                        element = document.createElement('div');
+                        element.className = 'minimap-terrain';
+                    }
+                    
+                    element.style.left = `${clampedX}px`;
+                    element.style.top = `${clampedZ}px`;
+                    element.title = entity.name;
+                    minimap.appendChild(element);
+                });
             }
         }
 
