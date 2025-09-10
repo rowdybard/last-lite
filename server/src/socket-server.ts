@@ -1227,6 +1227,7 @@ class GameRoom {
   }
 
   private handleHelpCommand(socketId: string): void {
+    console.log(`Sending help command to socket ${socketId}`);
     const helpText = `
 🎮 Last-Lite MMO Commands:
 
@@ -1254,6 +1255,7 @@ class GameRoom {
 
 💡 This is a shared world - you'll see other players!
     `;
+    console.log(`Emitting message to socket ${socketId}:`, { text: helpText });
     this.io.to(socketId).emit('message', { text: helpText });
   }
 
