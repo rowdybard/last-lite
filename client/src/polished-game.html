@@ -481,10 +481,10 @@
                         </div>
                     </div>
                     <div style="margin-top: 10px;">
-                        <button class="btn btn-secondary" onclick="sendCommand('party create')" style="width: 100%; margin-bottom: 5px;">
+                        <button class="btn btn-secondary" onclick="createParty()" style="width: 100%; margin-bottom: 5px;">
                             🎉 Create Party
                         </button>
-                        <button class="btn btn-secondary" onclick="sendCommand('party leave')" style="width: 100%;">
+                        <button class="btn btn-secondary" onclick="leaveParty()" style="width: 100%;">
                             🚪 Leave Party
                         </button>
                     </div>
@@ -502,10 +502,11 @@
 
                 <div class="panel">
                     <h3>🎯 Quick Actions</h3>
-                    <button class="btn btn-secondary" onclick="sendCommand('party invite')" style="width: 100%; margin-bottom: 5px;">
+                    <input type="text" id="invite-player-input" placeholder="Player name to invite" style="width: 100%; margin-bottom: 5px; padding: 8px; border: 1px solid #00ff00; border-radius: 3px; background: rgba(0,0,0,0.8); color: #00ff00;">
+                    <button class="btn btn-secondary" onclick="inviteToParty()" style="width: 100%; margin-bottom: 5px;">
                         📨 Invite to Party
                     </button>
-                    <button class="btn btn-secondary" onclick="sendCommand('party list')" style="width: 100%; margin-bottom: 5px;">
+                    <button class="btn btn-secondary" onclick="listParties()" style="width: 100%; margin-bottom: 5px;">
                         📋 List Parties
                     </button>
                     <button class="btn btn-secondary" onclick="sendCommand('dungeon list')" style="width: 100%; margin-bottom: 5px;">
@@ -705,6 +706,32 @@
             partyStatus.textContent = 'Solo';
         }
 
+        // Party system functions
+        function createParty() {
+            const partyName = prompt('Enter party name:');
+            if (partyName) {
+                socket.emit('create_party', { name: partyName });
+            }
+        }
+
+        function leaveParty() {
+            socket.emit('leave_party');
+        }
+
+        function inviteToParty() {
+            const playerName = document.getElementById('invite-player-input').value.trim();
+            if (playerName) {
+                socket.emit('invite_to_party', { username: playerName });
+                document.getElementById('invite-player-input').value = '';
+            } else {
+                addMessage('Please enter a player name to invite', 'error');
+            }
+        }
+
+        function listParties() {
+            socket.emit('get_parties');
+        }
+
         function connect() {
             if (socket) {
                 addMessage('Already connected', 'system');
@@ -810,6 +837,47 @@
             socket.on('test_pong', (data) => {
                 console.log('Received test pong from server:', data);
                 // Remove spammy test messages
+            });
+
+            // Party system event handlers
+            socket.on('party_created', (data) => {
+                addMessage(`Party "${data.party.name}" created!`, 'system');
+                updatePartyList();
+            });
+
+            socket.on('party_joined', (data) => {
+                addMessage(`Joined party "${data.party.name}"!`, 'system');
+                updatePartyList();
+            });
+
+            socket.on('party_left', (data) => {
+                addMessage('Left the party', 'system');
+                updatePartyList();
+            });
+
+            socket.on('invite_received', (data) => {
+                const accept = confirm(`${data.inviter} invited you to join party "${data.partyName}". Accept?`);
+                if (accept) {
+                    socket.emit('join_party', { name: data.partyName });
+                }
+            });
+
+            socket.on('invite_sent', (data) => {
+                addMessage(`Invite sent to ${data.username}`, 'system');
+            });
+
+            socket.on('parties_list', (data) => {
+                if (data.parties.length === 0) {
+                    addMessage('No parties available. Create one with "Create Party" button.', 'system');
+                } else {
+                    const partyList = data.parties.map(p => `"${p.name}" (${p.memberCount} members)`).join(', ');
+                    addMessage(`Available parties: ${partyList}`, 'system');
+                }
+            });
+
+            socket.on('parties_updated', (data) => {
+                // Update party list if needed
+                console.log('Parties updated:', data);
             });
 
             // Handle direct test message

@@ -1154,12 +1154,18 @@ class GameRoom {
     this.players.set(socketId, player);
     this.state.players[socketId] = player;
     
+    // Broadcast updated state to all players in the room
+    this.broadcastState();
+    
     return player;
   }
 
   public removePlayer(socketId: string): void {
     this.players.delete(socketId);
     delete this.state.players[socketId];
+    
+    // Broadcast updated state to all players in the room
+    this.broadcastState();
   }
 
   public hasPlayer(socketId: string): boolean {
