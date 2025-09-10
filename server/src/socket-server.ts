@@ -727,12 +727,22 @@ export class SocketGameServer {
   }
 
   private handleCommand(socket: any, data: { command: string }): void {
+    console.log(`Handling command from socket ${socket.id}:`, data.command);
+    
     // Find which room the player is in
+    let found = false;
     for (const [roomName, room] of this.rooms) {
       if (room.hasPlayer(socket.id)) {
+        console.log(`Player found in room ${roomName}, processing command`);
         room.handleCommand(socket.id, data.command);
+        found = true;
         break;
       }
+    }
+    
+    if (!found) {
+      console.log(`Player ${socket.id} not found in any room`);
+      socket.emit('message', { message: 'You are not in a room. Please join a room first.', type: 'error' });
     }
   }
 
