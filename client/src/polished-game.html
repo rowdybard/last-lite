@@ -596,10 +596,18 @@
                 updateConnectionStatus(false);
             });
 
+            let lastStateUpdate = 0;
             socket.on('state', (state) => {
-                gameState = state;
-                updatePlayerList();
-                // Remove spammy message - just update silently
+                const now = Date.now();
+                // Throttle state updates to max once per second
+                if (now - lastStateUpdate > 1000) {
+                    console.log('State update received:', state);
+                    gameState = state;
+                    updatePlayerList();
+                    lastStateUpdate = now;
+                } else {
+                    console.log('State update throttled (too frequent)');
+                }
             });
 
             socket.on('message', (message) => {

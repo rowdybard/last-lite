@@ -1346,8 +1346,14 @@ class GameRoom {
     this.broadcastState();
   }
 
+  private lastBroadcast = 0;
   private broadcastState(): void {
-    this.io.to(this.name).emit('state', this.getState());
+    const now = Date.now();
+    // Throttle state broadcasts to max once per second
+    if (now - this.lastBroadcast > 1000) {
+      this.io.to(this.name).emit('state', this.getState());
+      this.lastBroadcast = now;
+    }
   }
 
   public getState(): any {
