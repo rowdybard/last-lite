@@ -2,6 +2,13 @@
 export interface Position {
   x: number;
   y: number;
+  z: number;
+}
+
+export interface Velocity {
+  x: number;
+  y: number;
+  z: number;
 }
 
 export interface NPC {
@@ -67,6 +74,8 @@ export interface Quest {
   rewards: QuestRewards;
   prerequisites: string[];
   repeatable: boolean;
+  type?: string; // For compatibility with existing quest system
+  steps?: QuestStep[]; // For compatibility with existing quest system
 }
 
 export interface QuestObjective {
@@ -163,4 +172,121 @@ export interface QuestResponse {
   ok: boolean;
   rewards?: QuestRewards;
   player: PlayerState;
+}
+
+// Additional types for existing game systems
+export interface Player {
+  id: string;
+  name: string;
+  pos: Position;
+  vel: Velocity;
+  level: number;
+  hp: number;
+  maxHp: number;
+  mp: number;
+  maxMp: number;
+  xp: number;
+  gold: number;
+  inventory: InventoryItem[];
+  equipment: Record<string, string>;
+  abilities: string[];
+  lastActivity: number;
+  lastMoveDirection?: string;
+  questLog: QuestLogEntry[];
+  flags: Record<string, boolean>;
+}
+
+export interface Entity {
+  id: string;
+  name: string;
+  type: EntityType;
+  pos: Position;
+  vel: Velocity;
+  level: number;
+  hp: number;
+  maxHp: number;
+  aiState: AIState;
+  spawnPos: Position;
+  lastActivity: number;
+}
+
+export type EntityType = 'player' | 'mob' | 'npc' | 'door' | 'building' | 'vendor';
+
+export type AIState = 'idle' | 'patrol' | 'chase' | 'attack' | 'return' | 'dead';
+
+export interface WorldState {
+  players: Record<string, Player>;
+  entities: Record<string, Entity>;
+  drops: Record<string, Drop>;
+  timestamp: number;
+}
+
+export interface Drop {
+  id: string;
+  itemId: string;
+  pos: Position;
+  qty: number;
+  timestamp: number;
+}
+
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+export interface Ability {
+  id: string;
+  name: string;
+  type: AbilityType;
+  description: string;
+  cooldown: number;
+  manaCost: number;
+  range: number;
+  effects: AbilityEffect[];
+  class: CharacterClass;
+}
+
+export type AbilityType = 'damage' | 'heal' | 'buff' | 'debuff' | 'utility';
+
+export interface AbilityEffect {
+  type: 'damage' | 'heal' | 'buff' | 'debuff';
+  value: number;
+  duration?: number;
+  target: 'self' | 'enemy' | 'ally' | 'area';
+}
+
+export type CharacterClass = 'Warrior' | 'Mage' | 'Rogue' | 'Cleric';
+
+export interface CombatEvent {
+  type: CombatEventType;
+  source: string;
+  target: string;
+  damage?: number;
+  healing?: number;
+  ability?: string;
+  timestamp: number;
+}
+
+export type CombatEventType = 'damage' | 'heal' | 'ability_used' | 'death' | 'respawn';
+
+export interface QuestState {
+  id: string;
+  playerId: string;
+  questId: string;
+  currentStep: number;
+  completed: boolean;
+  timestamp: number;
+}
+
+export interface QuestStep {
+  id: string;
+  type: 'kill' | 'collect' | 'reach' | 'talk';
+  target?: string;
+  qty?: number;
+  location?: Position;
+  description: string;
+  completed: boolean;
+}
+
+export interface QuestReward {
+  type: 'xp' | 'gold' | 'item';
+  value: number;
+  itemId?: string;
 }

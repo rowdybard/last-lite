@@ -1358,7 +1358,7 @@ class GameRoom {
     if (inventory.length === 0) {
       this.io.to(socketId).emit('message', { text: 'Your inventory is empty.' });
     } else {
-      const items = inventory.map((item, index) => `${index + 1}. ${item.name} (${item.quantity})`).join('\n');
+      const items = inventory.map((item: any, index: any) => `${index + 1}. ${item.name} (${item.quantity})`).join('\n');
       this.io.to(socketId).emit('message', { text: `Your inventory:\n${items}` });
     }
   }

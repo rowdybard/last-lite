@@ -49,7 +49,7 @@ export class QuestService {
     const newPlayer = JSON.parse(JSON.stringify(player)); // Deep clone
     
     // Add or update quest in log
-    const existingIndex = newPlayer.questLog.findIndex(q => q.questId === questId);
+    const existingIndex = newPlayer.questLog.findIndex((q: any) => q.questId === questId);
     const questEntry: QuestLogEntry = {
       questId,
       state: 'InProgress',
