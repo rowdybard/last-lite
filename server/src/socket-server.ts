@@ -889,13 +889,18 @@ export class SocketGameServer {
 
   private handleJoinParty(socket: any, data: { name: string }): void {
     const username = this.getUsernameBySocket(socket);
+    console.log(`Join party attempt by: ${username} to party: ${data.name}`);
+    
     if (!username) {
+      console.log('Join party failed: user not logged in');
       socket.emit('error', { message: 'You must be logged in to join a party' });
       return;
     }
 
     const party = this.parties.get(data.name);
+    console.log(`Party found:`, party);
     if (!party) {
+      console.log('Join party failed: party not found');
       socket.emit('error', { message: 'Party not found' });
       return;
     }
@@ -905,6 +910,7 @@ export class SocketGameServer {
 
     // Add user to new party
     party.members.push({ name: username, status: 'online' });
+    console.log(`Added ${username} to party ${data.name}. Members:`, party.members);
     socket.emit('party_joined', { party });
     this.broadcastParties();
   }
@@ -920,26 +926,33 @@ export class SocketGameServer {
 
   private handleInviteToParty(socket: any, data: { username: string }): void {
     const inviter = this.getUsernameBySocket(socket);
+    console.log(`Invite attempt by: ${inviter} to: ${data.username}`);
+    
     if (!inviter) {
+      console.log('Invite failed: inviter not logged in');
       socket.emit('error', { message: 'You must be logged in to invite someone' });
       return;
     }
 
     const targetSocket = this.userSockets.get(data.username);
     if (!targetSocket) {
+      console.log(`Invite failed: target user ${data.username} not found or not online`);
       socket.emit('error', { message: 'User not found or not online' });
       return;
     }
 
     const party = this.getUserParty(inviter);
+    console.log(`Inviter's party:`, party);
     if (!party) {
+      console.log('Invite failed: inviter not in a party');
       socket.emit('error', { message: 'You must be in a party to invite someone' });
       return;
     }
 
-    targetSocket.emit('invite_received', { 
-      partyName: party.name, 
-      inviter: inviter 
+    console.log(`Sending invite to ${data.username} for party ${party.name}`);
+    targetSocket.emit('invite_received', {
+      partyName: party.name,
+      inviter: inviter
     });
     socket.emit('invite_sent', { username: data.username });
   }

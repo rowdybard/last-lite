@@ -846,6 +846,7 @@
             });
 
             socket.on('party_joined', (data) => {
+                console.log('Successfully joined party:', data);
                 addMessage(`Joined party "${data.party.name}"!`, 'system');
                 updatePartyList();
             });
@@ -856,9 +857,13 @@
             });
 
             socket.on('invite_received', (data) => {
+                console.log('Received party invite:', data);
                 const accept = confirm(`${data.inviter} invited you to join party "${data.partyName}". Accept?`);
                 if (accept) {
+                    console.log('Accepting party invite, sending join_party event:', data.partyName);
                     socket.emit('join_party', { name: data.partyName });
+                } else {
+                    console.log('Declined party invite');
                 }
             });
 
