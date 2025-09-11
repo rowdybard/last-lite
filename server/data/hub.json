@@ -1,0 +1,9 @@
+{
+  "id": "hub_start",
+  "name": "Outer Gate Hub",
+  "npcs": ["npc_vendor_mara", "npc_capt_rowan", "npc_herbalist_ten", "npc_town_crier"],
+  "ambientText": [
+    "Vendors haggle as guards swap shifts.",
+    "Herbal steam drifts from a copper kettle."
+  ]
+}

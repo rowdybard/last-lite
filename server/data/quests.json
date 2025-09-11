@@ -1,0 +1,28 @@
+[
+  {
+    "id": "q_rat_cleanup",
+    "title": "Rat Cleanup",
+    "giverId": "npc_capt_rowan",
+    "summary": "Collect 3 Rat Tails from the outer crates.",
+    "description": "Thin the vermin and bring back proof.",
+    "objectives": [
+      { "type": "collect", "itemId": "itm_rat_tail", "qty": 3 }
+    ],
+    "rewards": { "xp": 30, "gold": 12, "items": [{ "itemId": "itm_health_vial", "qty": 1 }] },
+    "prerequisites": [],
+    "repeatable": false
+  },
+  {
+    "id": "q_herbal_helper",
+    "title": "Herbal Helper",
+    "giverId": "npc_herbalist_ten",
+    "summary": "Bring 5 Meadow Sprigs to Ten.",
+    "description": "Fresh sprigs are rare near the Hub.",
+    "objectives": [
+      { "type": "collect", "itemId": "itm_meadow_sprig", "qty": 5 }
+    ],
+    "rewards": { "xp": 40, "gold": 8, "items": [{ "itemId": "itm_focus_brew", "qty": 1 }] },
+    "prerequisites": [],
+    "repeatable": true
+  }
+]

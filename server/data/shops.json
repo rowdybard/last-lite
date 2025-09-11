@@ -1,0 +1,17 @@
+[
+  {
+    "id": "shop_mara",
+    "vendorId": "npc_vendor_mara",
+    "buybackLimit": 5,
+    "inventory": [
+      { "itemId": "itm_health_vial", "stock": -1, "priceOverride": 7 },
+      { "itemId": "itm_rusted_dagger", "stock": 3 },
+      { "itemId": "itm_leather_cap", "stock": 2 }
+    ],
+    "sellRules": {
+      "enabled": true,
+      "priceFactor": 0.5,
+      "blacklistItemTypes": ["quest"]
+    }
+  }
+]

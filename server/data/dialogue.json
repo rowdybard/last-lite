@@ -1,0 +1,86 @@
+[
+  {
+    "id": "dlg_mara_root",
+    "npcId": "npc_vendor_mara",
+    "text": "Welcome to my scrap heap! Got tools, got gear, got what you need.",
+    "options": [
+      { "label": "Browse wares", "next": "end", "effects": [{ "type": "openShop", "shopId": "shop_mara" }] },
+      { "label": "Maybe later", "next": "end" }
+    ]
+  },
+  {
+    "id": "dlg_rowan_intro",
+    "npcId": "npc_capt_rowan",
+    "text": "The Gate needs you. Vermin swarm the outer crates.",
+    "options": [
+      { "label": "I'm in. What's the task?", "next": "dlg_rowan_offer" },
+      { "label": "Not now.", "next": "end" }
+    ]
+  },
+  {
+    "id": "dlg_rowan_offer",
+    "npcId": "npc_capt_rowan",
+    "text": "Bring me 3 Rat Tails to prove the path is clear.",
+    "options": [
+      {
+        "label": "Accept quest: Rat Cleanup",
+        "effects": [{ "type": "questStart", "questId": "q_rat_cleanup" }],
+        "next": "end",
+        "visibility": { "questStateNot": { "questId": "q_rat_cleanup", "state": "InProgressOrBeyond" } }
+      },
+      {
+        "label": "Turn in: Rat Cleanup",
+        "requirements": [{ "type": "questCanTurnIn", "questId": "q_rat_cleanup" }],
+        "effects": [{ "type": "questComplete", "questId": "q_rat_cleanup" }],
+        "next": "dlg_rowan_complete"
+      }
+    ]
+  },
+  {
+    "id": "dlg_rowan_complete",
+    "npcId": "npc_capt_rowan",
+    "text": "Good work. The Gate stands because of folk like you.",
+    "options": [{ "label": "Close", "next": "end" }]
+  },
+  {
+    "id": "dlg_ten_intro",
+    "npcId": "npc_herbalist_ten",
+    "text": "A calming tea for guards—if only I had fresh sprigs...",
+    "options": [
+      { "label": "Need help?", "next": "dlg_ten_offer" },
+      { "label": "Another time.", "next": "end" }
+    ]
+  },
+  {
+    "id": "dlg_ten_offer",
+    "npcId": "npc_herbalist_ten",
+    "text": "Fetch 5 Meadow Sprigs. I'll brew something special.",
+    "options": [
+      {
+        "label": "Accept quest: Herbal Helper",
+        "effects": [{ "type": "questStart", "questId": "q_herbal_helper" }],
+        "next": "end"
+      },
+      {
+        "label": "Turn in: Herbal Helper",
+        "requirements": [{ "type": "questCanTurnIn", "questId": "q_herbal_helper" }],
+        "effects": [{ "type": "questComplete", "questId": "q_herbal_helper" }],
+        "next": "dlg_ten_complete"
+      }
+    ]
+  },
+  {
+    "id": "dlg_ten_complete",
+    "npcId": "npc_herbalist_ten",
+    "text": "Perfect! This brew will keep the guards sharp.",
+    "options": [{ "label": "Close", "next": "end" }]
+  },
+  {
+    "id": "dlg_crier_loop",
+    "npcId": "npc_town_crier",
+    "text": "Hear ye! The outer crates need clearing, and fresh herbs are wanted by the herbalist.",
+    "options": [
+      { "label": "Thanks for the news", "next": "end" }
+    ]
+  }
+]

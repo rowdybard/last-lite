@@ -1,230 +1,203 @@
-# Last-Lite Browser MMO
+# Last Lite - Hub System
 
-A Last Chaos-flavored browser MMO built with TypeScript, Socket.io, and text-based UI, following Test-Driven Development principles.
+A hybrid text-forward browser RPG with NPCs, quests, and shops. Built with React + TypeScript + Vite frontend and Node.js + Express backend.
 
-## 🎯 Project Overview
+## Features
 
-Last-Lite is a lightweight browser MMO featuring:
-- **Hub-and-instance structure** with social zones and instanced dungeons
-- **Server-authoritative** gameplay with real-time multiplayer
-- **Chromebook-optimized** rendering for low-spec devices
-- **TDD-first development** with comprehensive test coverage
+- **Hub View**: Interactive NPC list with keyboard navigation
+- **Dialogue System**: Branching conversations with requirements and effects
+- **Quest System**: Accept, track, and complete quests with rewards
+- **Shop System**: Buy/sell items with dynamic pricing and stock
+- **Data-Driven**: All content defined in JSON files for easy modification
 
-## 🏗️ Architecture
-
-- **Client**: Vite + TypeScript + text-based UI + socket.io-client
-- **Server**: Node.js + TypeScript + Socket.io + Express
-- **Testing**: Vitest (unit/integration) + Playwright (E2E)
-- **Persistence**: In-memory (v0.1) → Postgres + Prisma (M5)
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Node.js 20+
-- npm 10+
+- Node.js 18+
+- npm or yarn
 
 ### Installation
+
+1. **Install dependencies:**
+   ```bash
+   # Server
+   cd server
+   npm install
+   
+   # Client
+   cd ../client
+   npm install
+   ```
+
+2. **Start development servers:**
+   ```bash
+   # Terminal 1 - Server
+   cd server
+   npm run dev
+   
+   # Terminal 2 - Client
+   cd client
+   npm run dev
+   ```
+
+3. **Open the game:**
+   - Navigate to `http://localhost:5173` (client)
+   - Server runs on `http://localhost:3000`
+
+### Production Build
+
 ```bash
-# Clone and install dependencies
-git clone <repository-url>
-cd last-lite
-npm run install:all
-```
-
-### Development
-```bash
-# Start development servers (client + server)
-npm run dev
-
-# Or run separately:
-npm run dev:client  # Vite dev server on :5173
-npm run dev:server  # Socket.io server on :3000
-```
-
-### Testing
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run E2E tests
-npm run e2e
-```
-
-### Building & Production
-```bash
-# Build for production
-npm run build
+# Build both client and server
+cd client && npm run build
+cd ../server && npm run build
 
 # Start production server
-npm start
+cd server && npm start
 ```
 
-## 🎮 Game Features (Planned)
+## Game Controls
 
-### M0 - Vertical Slice ✅
-- [x] Basic client-server connection
-- [x] Player movement with WASD/Arrow keys
-- [x] Text-based UI with command prompt
-- [x] HUD with player count display
-- [x] Server-authoritative movement system
+- **↑/↓**: Navigate NPC list
+- **Enter**: Select NPC or dialogue option
+- **Esc**: Close modals
+- **Mouse**: Click to interact
 
-### M1 - Zones & Doors (Next)
-- [ ] Hub ↔ Field zone transitions
-- [ ] Door proximity validation
-- [ ] Spawn point management
+## Adding Content
 
-### M2 - Combat & AI
-- [ ] 3 classes: Warrior, Ranger, Mage
-- [ ] 4 abilities per class with GCD/cooldowns
-- [ ] Basic AI with leash mechanics
-- [ ] Mob spawning and combat
+### New NPCs
 
-### M3 - Loot & Economy
-- [ ] Item drops with TTL
-- [ ] Personal loot system
-- [ ] Vendor buy/sell mechanics
-- [ ] Gold economy
+Edit `server/data/npcs.json`:
 
-### M4 - Dungeons & Parties
-- [ ] 5-player party system
-- [ ] Instanced dungeon rooms
-- [ ] Boss with 2 mechanics
-- [ ] Party coordination
+```json
+{
+  "id": "npc_new_character",
+  "type": "quest",
+  "name": "New Character",
+  "title": "Helper",
+  "hubPosition": { "x": 5, "y": 5 },
+  "avatar": "🧙‍♂️",
+  "dialogueRoot": "dlg_new_character"
+}
+```
 
-### M5 - Persistence
-- [ ] Postgres + Prisma integration
-- [ ] Character data persistence
-- [ ] Autosave system
-- [ ] Redis session management
+### New Quests
 
-### M6 - FTUE & Pets
-- [ ] 6-step tutorial quest chain
-- [ ] Pet follower system
-- [ ] Quest progression tracking
+Edit `server/data/quests.json`:
 
-## 🧪 Testing Strategy
+```json
+{
+  "id": "q_new_quest",
+  "title": "New Quest",
+  "giverId": "npc_new_character",
+  "summary": "Do something new",
+  "description": "Complete this new quest",
+  "objectives": [
+    { "type": "collect", "itemId": "itm_new_item", "qty": 5 }
+  ],
+  "rewards": { "xp": 100, "gold": 50 },
+  "prerequisites": [],
+  "repeatable": false
+}
+```
 
-### TDD Principles
-1. **Red**: Write failing tests first
-2. **Green**: Implement minimal code to pass
-3. **Blue**: Refactor while keeping tests green
+### New Items
 
-### Test Coverage
-- **Unit Tests**: Pure logic, game systems, utilities
-- **Integration Tests**: Room interactions, network protocols
-- **E2E Tests**: User workflows, multi-client scenarios
+Edit `server/data/items.json`:
 
-### Coverage Thresholds
-- **Lines**: ≥85%
-- **Branches**: ≥80%
-- **Functions**: ≥85%
-- **Statements**: ≥85%
+```json
+{
+  "id": "itm_new_item",
+  "name": "New Item",
+  "type": "material",
+  "desc": "A useful new item",
+  "stack": 99,
+  "baseValue": 5
+}
+```
 
-## 🎨 Performance Targets
+### New Shops
 
-### Client Performance
-- **Desktop**: 60 FPS on mid-range hardware
-- **Chromebook**: 30 FPS on low-spec devices
-- **Entity Budget**: ≤80 visible entities (Field), ≤20 (Dungeon)
+Edit `server/data/shops.json`:
 
-### Server Performance
-- **Tick Rate**: 60Hz (small rooms), 30Hz (large rooms)
-- **Latency**: ≤120ms RTT (North America)
-- **Payload**: <4KB per tick per client
+```json
+{
+  "id": "shop_new_vendor",
+  "vendorId": "npc_vendor",
+  "buybackLimit": 10,
+  "inventory": [
+    { "itemId": "itm_new_item", "stock": 20 }
+  ],
+  "sellRules": {
+    "enabled": true,
+    "priceFactor": 0.6,
+    "blacklistItemTypes": ["quest"]
+  }
+}
+```
 
-## 🔧 Configuration
+### New Dialogue
 
-### Environment Variables
+Edit `server/data/dialogue.json`:
+
+```json
+{
+  "id": "dlg_new_character",
+  "npcId": "npc_new_character",
+  "text": "Hello! I have a quest for you.",
+  "options": [
+    {
+      "label": "Accept quest",
+      "effects": [{ "type": "questStart", "questId": "q_new_quest" }],
+      "next": "end"
+    },
+    { "label": "Not now", "next": "end" }
+  ]
+}
+```
+
+## Testing
+
 ```bash
-# Server
-TICK_RATE=60              # Server tick rate
-WORLD_BOUNDS=20           # World boundary size
-MAX_ROOM_CCU=100          # Max players per room
+# Run unit tests
+npm test
 
-# Client Performance
-CLIENT_LOW_SPEC_MODE=1    # Force low-spec profile
-CLIENT_RES_SCALE=1.25     # Hardware scaling multiplier
-CLIENT_MAX_ENTITIES=80    # Max entities per client
+# Run UI tests (requires Playwright)
+npm run test:ui
 ```
 
-### Quality Profiles
-- **Low**: Chromebooks, ≤4GB RAM, integrated GPU
-- **Medium**: Standard laptops, 8GB RAM
-- **High**: Gaming PCs, ≥16GB RAM, dedicated GPU
+## API Endpoints
 
-## 📁 Project Structure
+- `GET /api/hub` - Get hub information
+- `GET /api/npcs` - Get all NPCs
+- `GET /api/npcs/:id` - Get specific NPC
+- `GET /api/quests` - Get all quests
+- `POST /api/quests/start` - Start a quest
+- `POST /api/quests/complete` - Complete a quest
+- `GET /api/shop/:shopId` - Get shop inventory
+- `POST /api/shop/buy` - Buy item
+- `POST /api/shop/sell` - Sell item
+- `POST /api/dialogue/advance` - Advance dialogue
+- `GET /api/player` - Get player state
 
-```
-last-lite/
-├── client/                 # Vite + text-based client
-│   ├── src/
-│   │   ├── text-game.ts   # Main text game class
-│   │   ├── main.ts        # Entry point
-│   │   └── ui/            # Feed system and UI components
-│   └── __tests__/         # Client unit tests
-├── server/                 # Node.js + Socket.io server
-│   ├── src/
-│   │   ├── rooms/         # Game rooms (Hub, Field, Dungeon)
-│   │   ├── systems/       # Game systems (Movement, Combat, AI)
-│   │   └── socket-server.ts # Express + Socket.io setup
-│   └── tests/             # Server unit tests
-├── e2e/                   # Playwright E2E tests
-│   └── tests/             # End-to-end test scenarios
-├── shared/                # Shared TypeScript types
-│   └── types.ts           # Game entity definitions
-└── .github/workflows/     # CI/CD pipelines
-```
+## Architecture
 
-## 🤝 Contributing
+- **Frontend**: React + TypeScript + Vite + Zustand
+- **Backend**: Node.js + Express + TypeScript
+- **Data**: JSON files loaded at startup
+- **State**: Zustand for client state, in-memory for server state
+- **Styling**: CSS with terminal/green theme
 
-1. **Write tests first** (TDD approach)
-2. **Keep commits small** and focused
-3. **Use conventional commit messages**:
-   - `feat(server/combat): enforce GCD`
-   - `test(client/ui): hotbar cooldown ring`
-   - `fix(network): handle connection drops`
+## Development
 
-4. **Ensure all tests pass** before submitting PR
-5. **Maintain coverage thresholds** on changed files
+The system is designed to be easily extensible:
 
-## 📋 Development Workflow
+1. **Add new NPC types** by extending the NPC interface
+2. **Add new quest objectives** by extending the QuestObjective interface
+3. **Add new dialogue effects** by extending the Effect interface
+4. **Add new item types** by extending the Item interface
 
-1. **Create feature branch** from `develop`
-2. **Write failing tests** for the feature
-3. **Implement minimal code** to pass tests
-4. **Refactor** while keeping tests green
-5. **Run full test suite** (`npm test && npm run e2e`)
-6. **Submit PR** with clear description
+All data is loaded from JSON files, making it easy to add content without code changes.
 
-## 🚀 Deployment
+## License
 
-### Render.com (Recommended)
-- **Build Command**: `npm ci && npm run build`
-- **Start Command**: `npm start`
-- **Health Check**: `GET /healthz`
-
-### Environment Setup
-```bash
-NODE_ENV=production
-NPM_CONFIG_PRODUCTION=false
-TICK_RATE=60
-WORLD_BOUNDS=20
-MAX_ROOM_CCU=100
-```
-
-## 📚 Documentation
-
-- [Technical Design Document](./docs/tdd.md) - Detailed architecture and specs
-- [API Reference](./docs/api.md) - Network protocol and message types
-- [Testing Guide](./docs/testing.md) - TDD practices and test patterns
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-**Built with ❤️ using TDD principles for a robust, maintainable codebase.**
+MIT

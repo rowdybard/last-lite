@@ -1,0 +1,39 @@
+[
+  {
+    "id": "npc_vendor_mara",
+    "type": "vendor",
+    "name": "Mara the Tinker",
+    "title": "Scrapwright",
+    "hubPosition": { "x": 6, "y": 2 },
+    "avatar": "🛠️",
+    "dialogueRoot": "dlg_mara_root",
+    "shopId": "shop_mara"
+  },
+  {
+    "id": "npc_capt_rowan",
+    "type": "quest",
+    "name": "Captain Rowan",
+    "title": "Warden of the Gate",
+    "hubPosition": { "x": 2, "y": 1 },
+    "avatar": "🛡️",
+    "dialogueRoot": "dlg_rowan_intro"
+  },
+  {
+    "id": "npc_herbalist_ten",
+    "type": "quest",
+    "name": "Ten of Teas",
+    "title": "Herbalist",
+    "hubPosition": { "x": 4, "y": 3 },
+    "avatar": "🌿",
+    "dialogueRoot": "dlg_ten_intro"
+  },
+  {
+    "id": "npc_town_crier",
+    "type": "ambient",
+    "name": "Town Crier",
+    "title": "Herald",
+    "hubPosition": { "x": 1, "y": 0 },
+    "avatar": "📜",
+    "dialogueRoot": "dlg_crier_loop"
+  }
+]
