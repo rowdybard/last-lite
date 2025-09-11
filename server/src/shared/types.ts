@@ -9,6 +9,8 @@ export interface Velocity {
   x: number;
   y: number;
   z: number;
+  vx?: number; // Alternative naming for x velocity
+  vz?: number; // Alternative naming for z velocity
 }
 
 export interface NPC {
@@ -194,6 +196,13 @@ export interface Player {
   lastMoveDirection?: string;
   questLog: QuestLogEntry[];
   flags: Record<string, boolean>;
+  class?: string; // Character class
+  lastGcd?: number; // Last global cooldown
+  abilityCooldowns?: Record<string, number>; // Ability cooldowns
+  buffs?: Record<string, any>; // Active buffs
+  debuffs?: Record<string, any>; // Active debuffs
+  dir?: number; // Direction
+  anim?: string; // Animation
 }
 
 export interface Entity {
@@ -208,11 +217,14 @@ export interface Entity {
   aiState: AIState;
   spawnPos: Position;
   lastActivity: number;
+  leashDistance?: number; // AI leash distance
+  dir?: number; // Direction
+  anim?: string; // Animation
 }
 
 export type EntityType = 'player' | 'mob' | 'npc' | 'door' | 'building' | 'vendor';
 
-export type AIState = 'idle' | 'patrol' | 'chase' | 'attack' | 'return' | 'dead';
+export type AIState = 'idle' | 'patrol' | 'chase' | 'attack' | 'return' | 'dead' | { current: string; lastUpdate: number };
 
 export interface WorldState {
   players: Record<string, Player>;
@@ -241,6 +253,11 @@ export interface Ability {
   range: number;
   effects: AbilityEffect[];
   class: CharacterClass;
+  gcd?: number; // Global cooldown
+  cd?: number; // Cooldown
+  cost?: number; // Mana cost
+  power?: number; // Damage/healing power
+  effect?: string; // Single effect type
 }
 
 export type AbilityType = 'damage' | 'heal' | 'buff' | 'debuff' | 'utility';
@@ -254,6 +271,60 @@ export interface AbilityEffect {
 
 export type CharacterClass = 'Warrior' | 'Mage' | 'Rogue' | 'Cleric';
 
+// Enum-like objects for runtime use
+export const CharacterClassEnum = {
+  Warrior: 'Warrior' as CharacterClass,
+  Mage: 'Mage' as CharacterClass,
+  Rogue: 'Rogue' as CharacterClass,
+  Cleric: 'Cleric' as CharacterClass
+};
+
+export const AbilityTypeEnum = {
+  damage: 'damage' as AbilityType,
+  heal: 'heal' as AbilityType,
+  buff: 'buff' as AbilityType,
+  debuff: 'debuff' as AbilityType,
+  utility: 'utility' as AbilityType,
+  Melee: 'damage' as AbilityType,
+  AOE: 'damage' as AbilityType,
+  Projectile: 'damage' as AbilityType
+};
+
+export const AbilityEffectEnum = {
+  damage: 'damage' as const,
+  heal: 'heal' as const,
+  buff: 'buff' as const,
+  debuff: 'debuff' as const,
+  Guard: 'buff' as const,
+  Blink: 'utility' as const,
+  Snare: 'debuff' as const
+};
+
+export const RarityEnum = {
+  common: 'common' as Rarity,
+  uncommon: 'uncommon' as Rarity,
+  rare: 'rare' as Rarity,
+  epic: 'epic' as Rarity,
+  legendary: 'legendary' as Rarity
+};
+
+export const CombatEventTypeEnum = {
+  damage: 'damage' as CombatEventType,
+  heal: 'heal' as CombatEventType,
+  ability_used: 'ability_used' as CombatEventType,
+  death: 'death' as CombatEventType,
+  respawn: 'respawn' as CombatEventType
+};
+
+export const EntityTypeEnum = {
+  player: 'player' as EntityType,
+  mob: 'mob' as EntityType,
+  npc: 'npc' as EntityType,
+  door: 'door' as EntityType,
+  building: 'building' as EntityType,
+  vendor: 'vendor' as EntityType
+};
+
 export interface CombatEvent {
   type: CombatEventType;
   source: string;
@@ -262,6 +333,7 @@ export interface CombatEvent {
   healing?: number;
   ability?: string;
   timestamp: number;
+  at?: number; // Alternative timestamp property
 }
 
 export type CombatEventType = 'damage' | 'heal' | 'ability_used' | 'death' | 'respawn';
@@ -283,6 +355,9 @@ export interface QuestStep {
   location?: Position;
   description: string;
   completed: boolean;
+  title?: string; // Alternative title property
+  objectives?: any[]; // Quest objectives
+  rewards?: any; // Quest rewards
 }
 
 export interface QuestReward {

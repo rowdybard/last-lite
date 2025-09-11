@@ -1055,7 +1055,12 @@ class GameRoom {
   constructor(name: string, io: SocketIOServer) {
     this.name = name;
     this.io = io;
-    this.state = new WorldState();
+    this.state = {
+      players: {},
+      entities: {},
+      drops: {},
+      timestamp: Date.now()
+    };
     
     // Initialize systems
     this.systems = {
@@ -1160,7 +1165,7 @@ class GameRoom {
       level: 1,
       xp: 0,
       pos: { x: 0, y: 0, z: 0 },
-      vel: { vx: 0, vz: 0 },
+      vel: { x: 0, y: 0, z: 0, vx: 0, vz: 0 },
       dir: 0,
       anim: 'idle',
       hp: 100,
