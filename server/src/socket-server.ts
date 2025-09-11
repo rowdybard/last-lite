@@ -717,6 +717,9 @@ export class SocketGameServer {
       const player = room.addPlayer(socket.id, data.playerName, data.playerClass);
       console.log(`Player created:`, player);
       
+      // Store username-socket mapping for party system
+      this.userSockets.set(data.playerName, socket);
+      
       // Send initial state to the player
       const gameState = room.getState();
       console.log(`Sending game state to ${socket.id}:`, gameState);
@@ -744,15 +747,24 @@ export class SocketGameServer {
 
   private handleDisconnect(socket: any): void {
     console.log(`Client ${socket.id} disconnected`);
-    
+
+    // Remove from userSockets mapping
+    for (const [username, userSocket] of this.userSockets) {
+      if (userSocket === socket) {
+        this.userSockets.delete(username);
+        console.log(`Removed user ${username} from userSockets mapping`);
+        break;
+      }
+    }
+
     // Find which room the player was in and remove them
     for (const [roomName, room] of this.rooms) {
       if (room.hasPlayer(socket.id)) {
         room.removePlayer(socket.id);
-        
+
         // Notify other players in the room
         socket.to(roomName).emit('player_left', { playerId: socket.id });
-        
+
         // Clean up empty rooms
         if (room.isEmpty()) {
           this.rooms.delete(roomName);
