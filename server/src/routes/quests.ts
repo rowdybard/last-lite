@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { QuestService } from '../services/quests.js';
-import { PlayerState } from '../../shared/types.js';
+import { PlayerState } from '../shared/types.js';
 
 const router = Router();
 
@@ -73,7 +73,7 @@ router.post('/api/player/debugGive', (req, res) => {
     return res.status(400).json({ ok: false, error: 'itemId and qty required' });
   }
 
-  const existing = playerState.inventory.find(i => i.itemId === itemId);
+      const existing = playerState.inventory.find((i: any) => i.itemId === itemId);
   if (existing) {
     existing.qty += qty;
   } else {

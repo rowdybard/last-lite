@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 // Import routes
 import hubRouter, { initializeHub } from './routes/hub.js';
@@ -16,7 +17,7 @@ import { QuestService } from './services/quests.js';
 import { ShopService } from './services/shop.js';
 
 // Import types
-import { Hub, NPC, Quest, Item, Shop, DialogueNode, PlayerState } from '../shared/types.js';
+import { Hub, NPC, Quest, Item, Shop, DialogueNode, PlayerState } from './shared/types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,12 +36,12 @@ app.use(express.static(path.join(__dirname, '../../client/dist')));
 async function loadData() {
   try {
     // Load JSON data files
-    const hubData: Hub = JSON.parse(await import('../../data/hub.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
-    const npcsData: NPC[] = JSON.parse(await import('../../data/npcs.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
-    const questsData: Quest[] = JSON.parse(await import('../../data/quests.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
-    const itemsData: Item[] = JSON.parse(await import('../../data/items.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
-    const shopsData: Shop[] = JSON.parse(await import('../../data/shops.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
-    const dialogueData: DialogueNode[] = JSON.parse(await import('../../data/dialogue.json', { assert: { type: 'json' } }).then(m => JSON.stringify(m.default)));
+    const hubData: Hub = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/hub.json'), 'utf8'));
+    const npcsData: NPC[] = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/npcs.json'), 'utf8'));
+    const questsData: Quest[] = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/quests.json'), 'utf8'));
+    const itemsData: Item[] = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/items.json'), 'utf8'));
+    const shopsData: Shop[] = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/shops.json'), 'utf8'));
+    const dialogueData: DialogueNode[] = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/dialogue.json'), 'utf8'));
 
     // Initialize services
     const dialogueService = new DialogueService(dialogueData);

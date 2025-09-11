@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Hub } from '../../shared/types.js';
+import { Hub } from '../shared/types.js';
 
 const router = Router();
 

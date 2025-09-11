@@ -1,4 +1,4 @@
-import { DialogueNode, Requirement, Effect, PlayerState, QuestLogEntry } from '../../shared/types.js';
+import { DialogueNode, Requirement, Effect, PlayerState, QuestLogEntry } from '../shared/types.js';
 
 export interface RequirementCheck {
   ok: boolean;
@@ -30,7 +30,7 @@ export class DialogueService {
       switch (req.type) {
         case 'hasItem':
           if (req.itemId && req.qty) {
-            const item = player.inventory.find(i => i.itemId === req.itemId);
+            const item = player.inventory.find((i: any) => i.itemId === req.itemId);
             if (!item || item.qty < req.qty) {
               reasons.push(`Need ${req.qty} ${req.itemId}`);
             }
@@ -39,7 +39,7 @@ export class DialogueService {
 
         case 'questStateIs':
           if (req.questId && req.state) {
-            const quest = player.questLog.find(q => q.questId === req.questId);
+            const quest = player.questLog.find((q: any) => q.questId === req.questId);
             if (!quest || quest.state !== req.state) {
               reasons.push(`Quest ${req.questId} must be ${req.state}`);
             }
@@ -48,7 +48,7 @@ export class DialogueService {
 
         case 'questCanTurnIn':
           if (req.questId) {
-            const quest = player.questLog.find(q => q.questId === req.questId);
+            const quest = player.questLog.find((q: any) => q.questId === req.questId);
             if (!quest || quest.state !== 'InProgress') {
               reasons.push(`Quest ${req.questId} not ready to turn in`);
             } else {
@@ -88,7 +88,7 @@ export class DialogueService {
         switch (effect.type) {
           case 'giveItem':
             if (effect.itemId && effect.qty) {
-              const existing = newPlayer.inventory.find(i => i.itemId === effect.itemId);
+              const existing = newPlayer.inventory.find((i: any) => i.itemId === effect.itemId);
               if (existing) {
                 existing.qty += effect.qty;
               } else {
@@ -99,11 +99,11 @@ export class DialogueService {
 
           case 'takeItem':
             if (effect.itemId && effect.qty) {
-              const existing = newPlayer.inventory.find(i => i.itemId === effect.itemId);
+              const existing = newPlayer.inventory.find((i: any) => i.itemId === effect.itemId);
               if (existing && existing.qty >= effect.qty) {
                 existing.qty -= effect.qty;
                 if (existing.qty <= 0) {
-                  newPlayer.inventory = newPlayer.inventory.filter(i => i.itemId !== effect.itemId);
+                  newPlayer.inventory = newPlayer.inventory.filter((i: any) => i.itemId !== effect.itemId);
                 }
               } else {
                 errors.push(`Cannot take ${effect.qty} ${effect.itemId}`);
@@ -113,7 +113,7 @@ export class DialogueService {
 
           case 'questStart':
             if (effect.questId) {
-              const existing = newPlayer.questLog.find(q => q.questId === effect.questId);
+              const existing = newPlayer.questLog.find((q: any) => q.questId === effect.questId);
               if (!existing) {
                 newPlayer.questLog.push({
                   questId: effect.questId,
@@ -126,7 +126,7 @@ export class DialogueService {
 
           case 'questComplete':
             if (effect.questId) {
-              const quest = newPlayer.questLog.find(q => q.questId === effect.questId);
+              const quest = newPlayer.questLog.find((q: any) => q.questId === effect.questId);
               if (quest) {
                 quest.state = 'Completed';
               }
@@ -171,7 +171,7 @@ export class DialogueService {
 
     const { questStateNot } = option.visibility;
     if (questStateNot) {
-      const quest = player.questLog.find(q => q.questId === questStateNot.questId);
+      const quest = player.questLog.find((q: any) => q.questId === questStateNot.questId);
       if (quest) {
         const state = quest.state;
         if (questStateNot.state === 'InProgressOrBeyond') {

@@ -1,4 +1,4 @@
-import { Quest, PlayerState, QuestLogEntry, QuestRewards } from '../../shared/types.js';
+import { Quest, PlayerState, QuestLogEntry, QuestRewards } from '../shared/types.js';
 
 export class QuestService {
   private quests: Map<string, Quest> = new Map();
@@ -24,14 +24,14 @@ export class QuestService {
     }
 
     // Check if already started
-    const existing = player.questLog.find(q => q.questId === questId);
+    const existing = player.questLog.find((q: any) => q.questId === questId);
     if (existing && existing.state !== 'NotStarted') {
       return { ok: false, reason: 'Quest already started' };
     }
 
     // Check prerequisites
     for (const prereqId of quest.prerequisites) {
-      const prereq = player.questLog.find(q => q.questId === prereqId);
+      const prereq = player.questLog.find((q: any) => q.questId === prereqId);
       if (!prereq || prereq.state !== 'Completed') {
         return { ok: false, reason: `Prerequisite quest ${prereqId} not completed` };
       }
@@ -71,7 +71,7 @@ export class QuestService {
       return { ok: false, reason: 'Quest not found' };
     }
 
-    const questEntry = player.questLog.find(q => q.questId === questId);
+    const questEntry = player.questLog.find((q: any) => q.questId === questId);
     if (!questEntry || questEntry.state !== 'InProgress') {
       return { ok: false, reason: 'Quest not in progress' };
     }
@@ -79,7 +79,7 @@ export class QuestService {
     // Check objectives
     for (const objective of quest.objectives) {
       if (objective.type === 'collect' && objective.itemId && objective.qty) {
-        const item = player.inventory.find(i => i.itemId === objective.itemId);
+        const item = player.inventory.find((i: any) => i.itemId === objective.itemId);
         if (!item || item.qty < objective.qty) {
           return { ok: false, reason: `Need ${objective.qty} ${objective.itemId}` };
         }
@@ -105,11 +105,11 @@ export class QuestService {
     // Remove required items
     for (const objective of quest.objectives) {
       if (objective.type === 'collect' && objective.itemId && objective.qty) {
-        const item = newPlayer.inventory.find(i => i.itemId === objective.itemId);
+        const item = newPlayer.inventory.find((i: any) => i.itemId === objective.itemId);
         if (item) {
           item.qty -= objective.qty;
           if (item.qty <= 0) {
-            newPlayer.inventory = newPlayer.inventory.filter(i => i.itemId !== objective.itemId);
+            newPlayer.inventory = newPlayer.inventory.filter((i: any) => i.itemId !== objective.itemId);
           }
         }
       }
@@ -120,7 +120,7 @@ export class QuestService {
     
     if (quest.rewards.items) {
       for (const rewardItem of quest.rewards.items) {
-        const existing = newPlayer.inventory.find(i => i.itemId === rewardItem.itemId);
+        const existing = newPlayer.inventory.find((i: any) => i.itemId === rewardItem.itemId);
         if (existing) {
           existing.qty += rewardItem.qty;
         } else {
@@ -130,7 +130,7 @@ export class QuestService {
     }
 
     // Update quest state
-    const questEntry = newPlayer.questLog.find(q => q.questId === questId);
+    const questEntry = newPlayer.questLog.find((q: any) => q.questId === questId);
     if (questEntry) {
       questEntry.state = 'Completed';
     }

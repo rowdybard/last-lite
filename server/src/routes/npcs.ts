@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { NPC } from '../../shared/types.js';
+import { NPC } from '../shared/types.js';
 
 const router = Router();
 

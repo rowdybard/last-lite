@@ -1,323 +1,166 @@
-// Game Entity Types
+// Shared Types for Last Lite Server
 export interface Position {
   x: number;
   y: number;
-  z: number;
 }
 
-export interface Velocity {
-  vx: number;
-  vz: number;
-}
-
-export interface Player {
+export interface NPC {
   id: string;
+  type: 'vendor' | 'quest' | 'ambient';
   name: string;
-  class: CharacterClass;
-  level: number;
-  xp: number;
-  pos: Position;
-  vel: Velocity;
-  dir: number; // rotation in radians
-  anim: string;
-  hp: number;
-  maxHp: number;
-  mp: number;
-  maxMp: number;
-  gold: number;
-  buffs: Buff[];
-  debuffs: Buff[];
-  lastGcd: number;
-  abilityCooldowns: Record<string, number>;
-  inventory: InventoryItem[];
-  lastActivity: number;
-  lastMoveDirection?: string; // For minimap directional indicators
+  title: string;
+  hubPosition: Position;
+  avatar?: string;
+  dialogueRoot?: string;
+  shopId?: string;
 }
 
+export interface DialogueOption {
+  label: string;
+  next: string;
+  effects?: Effect[];
+  requirements?: Requirement[];
+  visibility?: VisibilityCondition;
+}
 
-export interface Entity {
+export interface DialogueNode {
   id: string;
-  name: string;
-  type: EntityType;
-  pos: Position;
-  vel: Velocity;
-  dir: number;
-  anim: string;
-  hp: number;
-  maxHp: number;
-  level: number;
-  aiState: EntityAIState;
-  spawnPos?: Position;
-  leashDistance?: number;
+  npcId: string;
+  text: string;
+  options: DialogueOption[];
 }
 
-export interface Drop {
-  id: string;
-  itemId: string;
-  pos: Position;
-  ownerId?: string; // for personal loot
-  createdAt: number;
-  ttl: number; // time to live in ms
-}
-
-// Enums
-export enum CharacterClass {
-  Warrior = 'Warrior',
-  Ranger = 'Ranger',
-  Mage = 'Mage'
-}
-
-export enum EntityType {
-  Mob = 'mob',
-  Npc = 'npc',
-  Item = 'item',
-  Door = 'door',
-  Vendor = 'vendor',
-  Pet = 'pet',
-  Boss = 'boss'
-}
-
-export enum AIState {
-  Idle = 'idle',
-  Alert = 'alert',
-  Chase = 'chase',
-  Attack = 'attack',
-  Reset = 'reset'
-}
-
-export enum Rarity {
-  Common = 'Common',
-  Uncommon = 'Uncommon',
-  Rare = 'Rare',
-  Epic = 'Epic'
-}
-
-export enum ItemType {
-  Weapon = 'weapon',
-  Armor = 'armor',
-  Accessory = 'accessory',
-  Consumable = 'consumable',
-  Tool = 'tool',
-  Quest = 'quest',
-  Misc = 'misc'
-}
-
-// Ability System
-export interface Ability {
-  id: string;
-  class: CharacterClass;
-  gcd: number; // global cooldown in seconds
-  cd: number; // cooldown in seconds
-  cost: number; // mp cost
-  range: number; // range in meters
-  type: AbilityType;
-  power: number; // base damage scaling
-  effect?: AbilityEffect;
-}
-
-export enum AbilityType {
-  Melee = 'melee',
-  Projectile = 'projectile',
-  AOE = 'aoe'
-}
-
-export enum AbilityEffect {
-  Snare = 'snare',
-  Guard = 'guard',
-  Blink = 'blink',
-  Knockback = 'knockback'
-}
-
-// Combat System
-export interface CombatEvent {
-  at: number; // server time ms
-  type: CombatEventType;
-  srcId: string; // actor
-  dstId: string; // target
-  abilityId?: string;
-  amount?: number;
-}
-
-export enum CombatEventType {
-  Damage = 'damage',
-  Heal = 'heal',
-  Miss = 'miss',
-  Death = 'death'
-}
-
-// Zone System
-export interface Door {
-  id: string;
-  fromZone: string;
-  toZone: string;
-  pos: Position;
-  reqQuestId?: string; // optional quest requirement
-}
-
-export interface Zone {
-  id: string;
-  name: string;
-  type: ZoneType;
-  maxPlayers: number;
-  doors: Door[];
-  spawnPoints: Position[];
-}
-
-export enum ZoneType {
-  Hub = 'hub',
-  Field = 'field',
-  Dungeon = 'dungeon'
-}
-
-// Item System
-export interface ItemTemplate {
-  id: string;
-  name: string;
-  rarity: Rarity;
-  slot: string; // weapon, chest, ring, etc.
-  atk?: number;
-  def?: number;
-  hp?: number;
-  mp?: number;
-  value: number; // vendor price
-}
-
-export interface ItemInstance {
-  id: string;
-  templateId: string;
-  ownerCharId?: string;
-  bindOnPickup: boolean;
-  createdAt: number;
-}
-
-export interface InventorySlot {
-  id: string;
-  charId: string;
-  slotIndex: number;
+export interface Requirement {
+  type: 'hasItem' | 'questStateIs' | 'questCanTurnIn' | 'goldAtLeast' | 'flagTrue';
   itemId?: string;
-  quantity: number;
+  qty?: number;
+  questId?: string;
+  state?: string;
+  amount?: number;
+  flagName?: string;
 }
 
-// Quest System
-export interface QuestState {
-  id: string;
-  charId: string;
-  questId: string;
-  step: number;
-  completed: boolean;
+export interface Effect {
+  type: 'giveItem' | 'takeItem' | 'questStart' | 'questComplete' | 'openShop' | 'setFlag' | 'giveGold' | 'takeGold';
+  itemId?: string;
+  qty?: number;
+  questId?: string;
+  flagName?: string;
+  amount?: number;
+  shopId?: string;
+}
+
+export interface VisibilityCondition {
+  questStateNot?: {
+    questId: string;
+    state: string;
+  };
 }
 
 export interface Quest {
   id: string;
   title: string;
+  giverId: string;
+  summary: string;
   description: string;
-  type: string;
-  level: number;
-  steps: QuestStep[];
+  objectives: QuestObjective[];
+  rewards: QuestRewards;
   prerequisites: string[];
   repeatable: boolean;
 }
 
-export interface QuestStep {
-  id: string;
-  title: string;
-  description: string;
-  objectives: QuestObjective[];
-  rewards: QuestReward[];
-}
-
 export interface QuestObjective {
-  id: string;
-  type: string;
-  target: string;
-  count: number;
-  description: string;
-}
-
-export interface QuestReward {
-  type: string;
-  amount?: number;
+  type: 'collect' | 'kill' | 'reach';
   itemId?: string;
-  quantity?: number;
-  petType?: string;
-  level?: number;
-}
-
-export enum QuestStepType {
-  Talk = 'talk',
-  Kill = 'kill',
-  Collect = 'collect',
-  Enter = 'enter'
-}
-
-// Buff System
-export interface Buff {
-  id: string;
-  type: BuffType;
-  value: number;
-  duration: number; // in ms
-  startTime: number;
-}
-
-export enum BuffType {
-  Speed = 'speed',
-  Attack = 'attack',
-  Defense = 'defense',
-  Heal = 'heal'
-}
-
-// World State
-export class WorldState {
-  players: Record<string, Player> = {};
-  entities: Record<string, Entity> = {};
-  drops: Record<string, Drop> = {};
-  timestamp: number = Date.now();
-}
-
-// Client Input Types
-export interface InputState {
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
-}
-
-export interface CastInput {
-  abilityId: string;
+  qty?: number;
   targetId?: string;
-  targetPos?: Position;
+  locationId?: string;
 }
 
-export interface ChatInput {
-  text: string;
+export interface QuestRewards {
+  xp: number;
+  gold: number;
+  items?: Array<{
+    itemId: string;
+    qty: number;
+  }>;
 }
 
-export interface SwapZoneInput {
-  toZoneId: string;
-}
-
-// Quality Profile
-export interface QualityProfile {
-  level: 'low' | 'medium' | 'high';
-  hardwareScalingLevel: number;
-  shadowsEnabled: boolean;
-  postProcessingEnabled: boolean;
-  maxEntities: number;
-}
-
-// Additional interfaces for persistence
-export interface InventoryItem {
+export interface Item {
   id: string;
   name: string;
-  type: ItemType;
-  rarity: Rarity;
-  level: number;
-  quantity: number;
-  value: number;
+  type: 'consumable' | 'weapon' | 'armor' | 'material' | 'junk' | 'quest';
+  desc: string;
+  stack: number;
+  baseValue: number;
 }
 
-export interface EntityAIState {
-  current: string;
-  target?: string;
-  lastUpdate: number;
+export interface Shop {
+  id: string;
+  vendorId: string;
+  buybackLimit: number;
+  inventory: ShopItem[];
+  sellRules: SellRules;
+}
+
+export interface ShopItem {
+  itemId: string;
+  stock: number; // -1 for unlimited
+  priceOverride?: number;
+}
+
+export interface SellRules {
+  enabled: boolean;
+  priceFactor: number;
+  blacklistItemTypes: string[];
+}
+
+export interface Hub {
+  id: string;
+  name: string;
+  npcs: string[];
+  ambientText: string[];
+}
+
+export interface PlayerState {
+  gold: number;
+  inventory: InventoryItem[];
+  questLog: QuestLogEntry[];
+  flags: Record<string, boolean>;
+}
+
+export interface InventoryItem {
+  itemId: string;
+  qty: number;
+}
+
+export interface QuestLogEntry {
+  questId: string;
+  state: 'NotStarted' | 'InProgress' | 'Completed' | 'TurnedIn';
+  progress: Record<string, number>;
+}
+
+// API Response Types
+export interface APIResponse<T = any> {
+  ok: boolean;
+  data?: T;
+  error?: string;
+}
+
+export interface ShopInventoryItem {
+  item: Item;
+  stock: number;
+  price: number;
+}
+
+export interface DialogueResponse {
+  nextNode: string | 'end';
+  player: PlayerState;
+  errors?: string[];
+}
+
+export interface QuestResponse {
+  ok: boolean;
+  rewards?: QuestRewards;
+  player: PlayerState;
 }

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ShopService } from '../services/shop.js';
-import { PlayerState } from '../../shared/types.js';
+import { PlayerState } from '../shared/types.js';
 
 const router = Router();
 

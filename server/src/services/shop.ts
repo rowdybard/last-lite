@@ -1,4 +1,4 @@
-import { Shop, Item, PlayerState, ShopInventoryItem } from '../../shared/types.js';
+import { Shop, Item, PlayerState, ShopInventoryItem } from '../shared/types.js';
 
 export class ShopService {
   private shops: Map<string, Shop> = new Map();
@@ -25,7 +25,7 @@ export class ShopService {
     const shop = this.getShop(shopId);
     if (!shop) return [];
 
-    return shop.inventory.map(shopItem => {
+    return shop.inventory.map((shopItem: any) => {
       const item = this.getItem(shopItem.itemId);
       if (!item) return null;
 
@@ -79,7 +79,7 @@ export class ShopService {
     }
 
     const shop = this.getShop(shopId);
-    const shopItem = shop!.inventory.find(i => i.itemId === itemId);
+    const shopItem = shop!.inventory.find((i: any) => i.itemId === itemId);
     const item = this.getItem(itemId)!;
     const price = shopItem!.priceOverride || item.baseValue;
     const totalCost = price * qty;
@@ -90,7 +90,7 @@ export class ShopService {
     newPlayer.gold -= totalCost;
 
     // Add item to inventory
-    const existing = newPlayer.inventory.find(i => i.itemId === itemId);
+    const existing = newPlayer.inventory.find((i: any) => i.itemId === itemId);
     if (existing) {
       existing.qty += qty;
     } else {
@@ -119,7 +119,7 @@ export class ShopService {
       return { ok: false, reason: 'Invalid quantity' };
     }
 
-    const playerItem = player.inventory.find(i => i.itemId === itemId);
+    const playerItem = player.inventory.find((i: any) => i.itemId === itemId);
     if (!playerItem || playerItem.qty < qty) {
       return { ok: false, reason: 'Insufficient items' };
     }
@@ -152,11 +152,11 @@ export class ShopService {
     newPlayer.gold += sellPrice * qty;
 
     // Remove item from inventory
-    const playerItem = newPlayer.inventory.find(i => i.itemId === itemId);
+    const playerItem = newPlayer.inventory.find((i: any) => i.itemId === itemId);
     if (playerItem) {
       playerItem.qty -= qty;
       if (playerItem.qty <= 0) {
-        newPlayer.inventory = newPlayer.inventory.filter(i => i.itemId !== itemId);
+        newPlayer.inventory = newPlayer.inventory.filter((i: any) => i.itemId !== itemId);
       }
     }
 

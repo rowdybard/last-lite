@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { DialogueService } from '../services/dialogue.js';
-import { PlayerState } from '../../shared/types.js';
+import { PlayerState } from '../shared/types.js';
 
 const router = Router();
 
