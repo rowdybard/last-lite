@@ -1258,10 +1258,8 @@ class GameRoom {
       player.pos.x = Math.max(-bound, Math.min(bound, player.pos.x));
       player.pos.z = Math.max(-bound, Math.min(bound, player.pos.z));
       
-      // Send feedback message to the player
-      this.io.to(this.name).emit('message', { 
-        text: `${player.name} moves ${parsed.direction}` 
-      });
+      // Update player's last movement direction for minimap indicator
+      player.lastMoveDirection = parsed.direction;
       
       this.broadcastState();
     }

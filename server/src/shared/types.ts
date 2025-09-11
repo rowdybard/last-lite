@@ -31,6 +31,7 @@ export interface Player {
   abilityCooldowns: Record<string, number>;
   inventory: InventoryItem[];
   lastActivity: number;
+  lastMoveDirection?: string; // For minimap directional indicators
 }
 
 

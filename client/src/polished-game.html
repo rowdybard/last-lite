@@ -115,6 +115,50 @@
             box-shadow: 0 0 3px #ffff00;
         }
 
+        .minimap-direction-indicator {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 11;
+            pointer-events: none;
+        }
+
+        .minimap-direction-indicator.north {
+            border-left: 3px solid transparent;
+            border-right: 3px solid transparent;
+            border-bottom: 6px solid #00ff00;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .minimap-direction-indicator.south {
+            border-left: 3px solid transparent;
+            border-right: 3px solid transparent;
+            border-top: 6px solid #00ff00;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .minimap-direction-indicator.east {
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+            border-left: 6px solid #00ff00;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .minimap-direction-indicator.west {
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+            border-right: 6px solid #00ff00;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
         .minimap-building {
             width: 8px;
             height: 8px;
@@ -620,7 +664,7 @@
             if (!minimap) return;
             
             // Remove all existing elements except the player
-            const existingElements = minimap.querySelectorAll('.minimap-other-player, .minimap-building, .minimap-door, .minimap-terrain');
+            const existingElements = minimap.querySelectorAll('.minimap-other-player, .minimap-building, .minimap-door, .minimap-terrain, .minimap-direction-indicator');
             existingElements.forEach(el => el.remove());
             
             // Convert world coordinates to minimap coordinates (centered)
@@ -639,6 +683,18 @@
                 
                 minimapPlayer.style.left = `${clampedX}px`;
                 minimapPlayer.style.top = `${clampedZ}px`;
+                
+                // Add directional indicator for current player
+                const existingIndicator = minimapPlayer.querySelector('.minimap-direction-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                
+                if (currentPlayer.lastMoveDirection) {
+                    const indicator = document.createElement('div');
+                    indicator.className = `minimap-direction-indicator ${currentPlayer.lastMoveDirection}`;
+                    minimapPlayer.appendChild(indicator);
+                }
             }
             
             // Add other players
@@ -656,6 +712,13 @@
                         otherPlayer.style.top = `${clampedZ}px`;
                         otherPlayer.title = player.name;
                         minimap.appendChild(otherPlayer);
+                        
+                        // Add directional indicator if player has moved recently
+                        if (player.lastMoveDirection) {
+                            const indicator = document.createElement('div');
+                            indicator.className = `minimap-direction-indicator ${player.lastMoveDirection}`;
+                            otherPlayer.appendChild(indicator);
+                        }
                     }
                 });
             }
