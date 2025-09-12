@@ -1,4 +1,4 @@
-import { Entity, EntityType } from '../shared/types';
+import { Entity, EntityType, EntityTypeEnum } from '../shared/types';
 
 export interface WorldPersistenceResult {
   success: boolean;
@@ -143,7 +143,7 @@ export class WorldPersistence {
       return { valid: false, reason: 'Invalid entity data: missing name' };
     }
 
-    if (!Object.values(EntityType).includes(entity.type)) {
+    if (!Object.values(EntityTypeEnum).includes(entity.type)) {
       return { valid: false, reason: 'Invalid entity data: invalid type' };
     }
 

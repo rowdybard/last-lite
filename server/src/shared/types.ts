@@ -69,15 +69,16 @@ export interface VisibilityCondition {
 export interface Quest {
   id: string;
   title: string;
-  giverId: string;
-  summary: string;
+  giverId?: string; // Optional for compatibility
+  summary?: string; // Optional for compatibility
   description: string;
-  objectives: QuestObjective[];
-  rewards: QuestRewards;
+  objectives?: QuestObjective[]; // Optional for compatibility
+  rewards?: QuestRewards; // Optional for compatibility
   prerequisites: string[];
   repeatable: boolean;
   type?: string; // For compatibility with existing quest system
   steps?: QuestStep[]; // For compatibility with existing quest system
+  level?: number; // Quest level requirement
 }
 
 export interface QuestObjective {
@@ -245,13 +246,13 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export interface Ability {
   id: string;
-  name: string;
+  name?: string; // Optional for compatibility
   type: AbilityType;
-  description: string;
-  cooldown: number;
-  manaCost: number;
+  description?: string; // Optional for compatibility
+  cooldown?: number; // Optional for compatibility
+  manaCost?: number; // Optional for compatibility
   range: number;
-  effects: AbilityEffect[];
+  effects?: AbilityEffect[]; // Optional for compatibility
   class: CharacterClass;
   gcd?: number; // Global cooldown
   cd?: number; // Cooldown
@@ -334,6 +335,7 @@ export interface CombatEvent {
   ability?: string;
   timestamp: number;
   at?: number; // Alternative timestamp property
+  srcId?: string; // Source ID for compatibility
 }
 
 export type CombatEventType = 'damage' | 'heal' | 'ability_used' | 'death' | 'respawn';

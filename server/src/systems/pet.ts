@@ -256,7 +256,7 @@ export class PetSystem {
       defense: template.baseStats.defense,
       speed: template.baseStats.speed,
       pos: { x: 0, y: 0, z: 0 },
-      vel: { vx: 0, vz: 0 },
+      vel: { x: 0, y: 0, z: 0, vx: 0, vz: 0 },
       dir: 0,
       anim: 'idle',
       ownerId: playerId,

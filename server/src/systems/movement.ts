@@ -18,22 +18,26 @@ export class MovementSystem {
 
   step(deltaTime: number, player: Player): void {
     // Apply friction
-    if (this.config.friction) {
+    if (this.config.friction && player.vel.vx !== undefined && player.vel.vz !== undefined) {
       player.vel.vx *= this.config.friction;
       player.vel.vz *= this.config.friction;
     }
 
     // Clamp velocity to max speed
-    const speed = Math.hypot(player.vel.vx, player.vel.vz);
-    if (speed > this.config.maxSpeed) {
-      const scale = this.config.maxSpeed / speed;
-      player.vel.vx *= scale;
-      player.vel.vz *= scale;
+    if (player.vel.vx !== undefined && player.vel.vz !== undefined) {
+      const speed = Math.hypot(player.vel.vx, player.vel.vz);
+      if (speed > this.config.maxSpeed) {
+        const scale = this.config.maxSpeed / speed;
+        player.vel.vx *= scale;
+        player.vel.vz *= scale;
+      }
     }
 
     // Update position
-    player.pos.x += player.vel.vx * deltaTime;
-    player.pos.z += player.vel.vz * deltaTime;
+    if (player.vel.vx !== undefined && player.vel.vz !== undefined) {
+      player.pos.x += player.vel.vx * deltaTime;
+      player.pos.z += player.vel.vz * deltaTime;
+    }
 
     // Clamp position to world bounds
     player.pos.x = Math.max(-this.config.bound, Math.min(this.config.bound, player.pos.x));

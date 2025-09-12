@@ -77,11 +77,13 @@ export class QuestService {
     }
 
     // Check objectives
-    for (const objective of quest.objectives) {
-      if (objective.type === 'collect' && objective.itemId && objective.qty) {
-        const item = player.inventory.find((i: any) => i.itemId === objective.itemId);
-        if (!item || item.qty < objective.qty) {
-          return { ok: false, reason: `Need ${objective.qty} ${objective.itemId}` };
+    if (quest.objectives) {
+      for (const objective of quest.objectives) {
+        if (objective.type === 'collect' && objective.itemId && objective.qty) {
+          const item = player.inventory.find((i: any) => i.itemId === objective.itemId);
+          if (!item || item.qty < objective.qty) {
+            return { ok: false, reason: `Need ${objective.qty} ${objective.itemId}` };
+          }
         }
       }
     }
@@ -103,28 +105,32 @@ export class QuestService {
     const newPlayer = JSON.parse(JSON.stringify(player)); // Deep clone
 
     // Remove required items
-    for (const objective of quest.objectives) {
-      if (objective.type === 'collect' && objective.itemId && objective.qty) {
-        const item = newPlayer.inventory.find((i: any) => i.itemId === objective.itemId);
-        if (item) {
-          item.qty -= objective.qty;
-          if (item.qty <= 0) {
-            newPlayer.inventory = newPlayer.inventory.filter((i: any) => i.itemId !== objective.itemId);
+    if (quest.objectives) {
+      for (const objective of quest.objectives) {
+        if (objective.type === 'collect' && objective.itemId && objective.qty) {
+          const item = newPlayer.inventory.find((i: any) => i.itemId === objective.itemId);
+          if (item) {
+            item.qty -= objective.qty;
+            if (item.qty <= 0) {
+              newPlayer.inventory = newPlayer.inventory.filter((i: any) => i.itemId !== objective.itemId);
+            }
           }
         }
       }
     }
 
     // Give rewards
-    newPlayer.gold += quest.rewards.gold;
-    
-    if (quest.rewards.items) {
-      for (const rewardItem of quest.rewards.items) {
-        const existing = newPlayer.inventory.find((i: any) => i.itemId === rewardItem.itemId);
-        if (existing) {
-          existing.qty += rewardItem.qty;
-        } else {
-          newPlayer.inventory.push({ itemId: rewardItem.itemId, qty: rewardItem.qty });
+    if (quest.rewards) {
+      newPlayer.gold += quest.rewards.gold;
+      
+      if (quest.rewards.items) {
+        for (const rewardItem of quest.rewards.items) {
+          const existing = newPlayer.inventory.find((i: any) => i.itemId === rewardItem.itemId);
+          if (existing) {
+            existing.qty += rewardItem.qty;
+          } else {
+            newPlayer.inventory.push({ itemId: rewardItem.itemId, qty: rewardItem.qty });
+          }
         }
       }
     }

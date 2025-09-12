@@ -21,15 +21,16 @@ export class EntitySystem {
       name: spawnData.name,
       type: spawnData.type,
       pos: { ...spawnData.pos },
-      vel: { vx: 0, vz: 0 },
+      vel: { x: 0, y: 0, z: 0, vx: 0, vz: 0 },
       dir: 0,
       anim: 'idle',
       hp: spawnData.hp,
       maxHp: spawnData.maxHp,
       level: spawnData.level,
-      aiState: { current: 'idle', lastUpdate: Date.now() },
+      aiState: { current: 'idle', lastUpdate: Date.now() } as AIState,
       spawnPos: { ...spawnData.spawnPos },
       leashDistance: spawnData.leashDistance || 10,
+      lastActivity: Date.now(),
     };
 
     this.entities.set(entity.id, entity);
@@ -122,11 +123,11 @@ export class EntitySystem {
 
     // Reset entity to spawn state
     entity.pos = { ...entity.spawnPos! };
-    entity.vel = { vx: 0, vz: 0 };
+    entity.vel = { x: 0, y: 0, z: 0, vx: 0, vz: 0 };
     entity.dir = 0;
     entity.anim = 'idle';
     entity.hp = entity.maxHp;
-    entity.aiState = { current: 'idle', lastUpdate: Date.now() };
+    entity.aiState = { current: 'idle', lastUpdate: Date.now() } as AIState;
 
     return true;
   }

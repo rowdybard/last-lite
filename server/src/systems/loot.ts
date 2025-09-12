@@ -1,4 +1,4 @@
-import { Entity, Player, Drop, Rarity } from '../shared/types';
+import { Entity, Player, Drop, Rarity, RarityEnum } from '../shared/types';
 
 export interface LootDrop {
   id: string;
@@ -14,10 +14,10 @@ export interface LootDrop {
 
 export class LootSystem {
   private readonly DROP_RATES = {
-    [Rarity.Common]: 0.7,    // 70% chance
-    [Rarity.Uncommon]: 0.2,  // 20% chance
-    [Rarity.Rare]: 0.08,     // 8% chance
-    [Rarity.Epic]: 0.02,     // 2% chance
+    [RarityEnum.common]: 0.7,    // 70% chance
+    [RarityEnum.uncommon]: 0.2,  // 20% chance
+    [RarityEnum.rare]: 0.08,     // 8% chance
+    [RarityEnum.epic]: 0.02,     // 2% chance
   };
 
   private readonly GOLD_PER_LEVEL = 5;
@@ -33,7 +33,7 @@ export class LootSystem {
         id: `drop-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         itemId: 'gold',
         quantity: goldAmount,
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 1,
         pos: { ...entity.pos },
         ownerId: player.id,
@@ -94,7 +94,7 @@ export class LootSystem {
       }
     }
 
-    return Rarity.Common; // Fallback
+    return RarityEnum.common; // Fallback
   }
 
   private generateItem(entity: Entity, player: Player, rarity: Rarity): any {
@@ -102,22 +102,22 @@ export class LootSystem {
     const itemLevel = Math.max(1, entity.level - 1 + Math.floor(Math.random() * 3));
     
     const itemTemplates = {
-      [Rarity.Common]: [
+      [RarityEnum.common]: [
         { id: 'health_potion', quantity: 1, level: itemLevel },
         { id: 'mana_potion', quantity: 1, level: itemLevel },
         { id: 'iron_sword', quantity: 1, level: itemLevel },
       ],
-      [Rarity.Uncommon]: [
+      [RarityEnum.uncommon]: [
         { id: 'steel_sword', quantity: 1, level: itemLevel },
         { id: 'leather_armor', quantity: 1, level: itemLevel },
         { id: 'magic_ring', quantity: 1, level: itemLevel },
       ],
-      [Rarity.Rare]: [
+      [RarityEnum.rare]: [
         { id: 'enchanted_sword', quantity: 1, level: itemLevel },
         { id: 'chain_mail', quantity: 1, level: itemLevel },
         { id: 'power_amulet', quantity: 1, level: itemLevel },
       ],
-      [Rarity.Epic]: [
+      [RarityEnum.epic]: [
         { id: 'legendary_blade', quantity: 1, level: itemLevel },
         { id: 'dragon_scale_armor', quantity: 1, level: itemLevel },
         { id: 'crown_of_power', quantity: 1, level: itemLevel },
@@ -139,10 +139,10 @@ export class LootSystem {
   private getDropTTL(rarity: Rarity): number {
     // Higher rarity items last longer
     const ttlMap = {
-      [Rarity.Common]: 300000,    // 5 minutes
-      [Rarity.Uncommon]: 600000,  // 10 minutes
-      [Rarity.Rare]: 1200000,     // 20 minutes
-      [Rarity.Epic]: 1800000,     // 30 minutes
+      [RarityEnum.common]: 300000,    // 5 minutes
+      [RarityEnum.uncommon]: 600000,  // 10 minutes
+      [RarityEnum.rare]: 1200000,     // 20 minutes
+      [RarityEnum.epic]: 1800000,     // 30 minutes
     };
 
     return ttlMap[rarity] || 300000;

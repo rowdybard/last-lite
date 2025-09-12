@@ -2,7 +2,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
 import express from 'express';
 import path from 'path';
-import { WorldState, Player, Entity, Drop } from './shared/types.js';
+import { WorldState, Player, Entity, Drop, Ability, CharacterClass } from './shared/types.js';
 import { UserService } from './services/user-service.js';
 import { DatabaseConnection } from './database/config.js';
 import { MovementSystem } from './systems/movement.js';
@@ -1173,11 +1173,15 @@ class GameRoom {
       mp: 50,
       maxMp: 50,
       gold: 0,
-      buffs: [],
-      debuffs: [],
+      buffs: {},
+      debuffs: {},
       lastGcd: 0,
       abilityCooldowns: {},
       inventory: [],
+      equipment: {},
+      abilities: [],
+      questLog: [],
+      flags: {},
       lastActivity: Date.now(),
     };
     
@@ -1282,15 +1286,20 @@ class GameRoom {
       const target = this.findEntityByName(parsed.target);
       if (target) {
         // Create a basic attack ability
-        const attackAbility = {
+        const attackAbility: Ability = {
           id: 'basic_attack',
-          class: player.class,
+          name: 'Basic Attack',
+          class: (player.class || 'Warrior') as CharacterClass,
           power: 10,
           cost: 0,
           cd: 0,
           gcd: 1,
           range: 5,
-          type: 'damage' as any
+          type: 'damage' as any,
+          description: 'A basic attack',
+          cooldown: 0,
+          manaCost: 0,
+          effects: []
         };
         
         const combatResult = this.systems.combat.tryCast(player, attackAbility, target);

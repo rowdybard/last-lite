@@ -1,4 +1,4 @@
-import { Entity, EntityType } from '../shared/types';
+import { Entity, EntityType, EntityTypeEnum, AIState } from '../shared/types';
 import { DatabaseConnection } from '../database/config';
 
 export interface WorldPersistenceResult {
@@ -62,17 +62,17 @@ export class WorldPersistencePostgres {
             entity.pos.x,
             entity.pos.y,
             entity.pos.z,
-            entity.vel.vx,
-            entity.vel.vz,
-            entity.dir,
-            entity.anim,
+            entity.vel.vx || 0,
+            entity.vel.vz || 0,
+            entity.dir || 0,
+            entity.anim || 'idle',
             entity.level,
             entity.hp,
             entity.maxHp,
             entity.spawnPos?.x || entity.pos.x,
             entity.spawnPos?.y || entity.pos.y,
             entity.spawnPos?.z || entity.pos.z,
-            entity.leashDistance
+            entity.leashDistance || 10
           );
         });
 
@@ -209,7 +209,7 @@ export class WorldPersistencePostgres {
       name: row.name,
       type: row.type as EntityType,
       pos: { x: row.pos_x, y: row.pos_y, z: row.pos_z },
-      vel: { vx: row.vel_vx, vz: row.vel_vz },
+      vel: { x: 0, y: 0, z: 0, vx: row.vel_vx, vz: row.vel_vz },
       dir: row.dir,
       anim: row.anim,
       level: row.level,
@@ -220,7 +220,8 @@ export class WorldPersistencePostgres {
       aiState: {
         current: 'idle',
         lastUpdate: Date.now()
-      }
+      } as AIState,
+      lastActivity: Date.now()
     };
   }
 
@@ -233,7 +234,7 @@ export class WorldPersistencePostgres {
       return { valid: false, reason: 'Invalid entity data: missing name' };
     }
 
-    if (!Object.values(EntityType).includes(entity.type)) {
+    if (!Object.values(EntityTypeEnum).includes(entity.type)) {
       return { valid: false, reason: 'Invalid entity data: invalid type' };
     }
 

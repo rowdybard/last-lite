@@ -28,8 +28,10 @@ export class QuestSystem {
       steps: [
         {
           id: 'welcome_step1',
+          type: 'talk',
           title: 'Say Hello',
           description: 'Use the say command to greet the world',
+          completed: false,
           objectives: [
             {
               id: 'say_hello',
@@ -65,8 +67,10 @@ export class QuestSystem {
       steps: [
         {
           id: 'movement_step1',
+          type: 'reach',
           title: 'Move Around',
           description: 'Practice moving in different directions',
+          completed: false,
           objectives: [
             {
               id: 'move_north',
@@ -123,8 +127,10 @@ export class QuestSystem {
       steps: [
         {
           id: 'combat_step1',
+          type: 'kill',
           title: 'Attack a Mob',
           description: 'Find and attack a mob to learn combat',
+          completed: false,
           objectives: [
             {
               id: 'attack_mob',
@@ -165,8 +171,10 @@ export class QuestSystem {
       steps: [
         {
           id: 'pet_step1',
+          type: 'talk',
           title: 'Adopt a Pet',
           description: 'Use the pet command to adopt your first companion',
+          completed: false,
           objectives: [
             {
               id: 'adopt_pet',
@@ -234,10 +242,12 @@ export class QuestSystem {
     };
 
     // Initialize objectives for first step
-    if (quest.steps.length > 0) {
+    if (quest.steps && quest.steps.length > 0) {
       const firstStep = quest.steps[0];
-      for (const objective of firstStep.objectives) {
-        progress.objectives[objective.id] = 0;
+      if (firstStep.objectives) {
+        for (const objective of firstStep.objectives) {
+          progress.objectives[objective.id] = 0;
+        }
       }
     }
 
@@ -257,9 +267,11 @@ export class QuestSystem {
       const quest = this.quests.get(progress.questId);
       if (!quest) continue;
 
+      if (!quest.steps) continue;
       const currentStep = quest.steps[progress.currentStep];
       if (!currentStep) continue;
 
+      if (!currentStep.objectives) continue;
       for (const objective of currentStep.objectives) {
         if (objective.type === objectiveType && objective.target === target) {
           const currentProgress = progress.objectives[objective.id] || 0;
@@ -276,6 +288,7 @@ export class QuestSystem {
   }
 
   private isStepComplete(progress: QuestProgress, step: QuestStep): boolean {
+    if (!step.objectives) return true;
     for (const objective of step.objectives) {
       const currentProgress = progress.objectives[objective.id] || 0;
       if (currentProgress < objective.count) {
@@ -287,20 +300,24 @@ export class QuestSystem {
 
   private completeStep(playerId: string, progress: QuestProgress, quest: Quest, step: QuestStep): void {
     // Award rewards
-    for (const reward of step.rewards) {
-      this.awardReward(playerId, reward);
+    if (step.rewards) {
+      for (const reward of step.rewards) {
+        this.awardReward(playerId, reward);
+      }
     }
 
     // Move to next step or complete quest
     progress.currentStep++;
-    if (progress.currentStep >= quest.steps.length) {
+    if (quest.steps && progress.currentStep >= quest.steps.length) {
       progress.completed = true;
       progress.completedAt = Date.now();
-    } else {
+    } else if (quest.steps) {
       // Initialize objectives for next step
       const nextStep = quest.steps[progress.currentStep];
-      for (const objective of nextStep.objectives) {
-        progress.objectives[objective.id] = 0;
+      if (nextStep && nextStep.objectives) {
+        for (const objective of nextStep.objectives) {
+          progress.objectives[objective.id] = 0;
+        }
       }
     }
   }

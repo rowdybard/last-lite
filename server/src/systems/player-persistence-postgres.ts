@@ -36,9 +36,11 @@ export class PlayerPersistencePostgres {
 
       // Convert ability cooldowns Map to object for JSON storage
       const abilityCooldownsObj: Record<string, number> = {};
-      Object.entries(player.abilityCooldowns).forEach(([key, value]) => {
-        abilityCooldownsObj[key] = value as number;
-      });
+      if (player.abilityCooldowns) {
+        Object.entries(player.abilityCooldowns).forEach(([key, value]) => {
+          abilityCooldownsObj[key] = value as number;
+        });
+      }
 
       const query = `
         INSERT INTO players (
@@ -80,20 +82,20 @@ export class PlayerPersistencePostgres {
         player.pos.x,
         player.pos.y,
         player.pos.z,
-        player.vel.vx,
-        player.vel.vz,
-        player.dir,
-        player.anim,
+        player.vel.vx || 0,
+        player.vel.vz || 0,
+        player.dir || 0,
+        player.anim || 'idle',
         player.hp,
         player.maxHp,
         player.mp,
         player.maxMp,
         player.gold,
-        JSON.stringify(player.buffs),
-        JSON.stringify(player.debuffs),
+        JSON.stringify(player.buffs || {}),
+        JSON.stringify(player.debuffs || {}),
         JSON.stringify(abilityCooldownsObj),
         JSON.stringify(player.inventory),
-        player.lastGcd,
+        player.lastGcd || 0,
         new Date(player.lastActivity)
       ];
 
@@ -228,7 +230,7 @@ export class PlayerPersistencePostgres {
       level: row.level,
       xp: row.xp,
       pos: { x: row.pos_x, y: row.pos_y, z: row.pos_z },
-      vel: { vx: row.vel_vx, vz: row.vel_vz },
+      vel: { x: 0, y: 0, z: 0, vx: row.vel_vx, vz: row.vel_vz },
       dir: row.dir,
       anim: row.anim,
       hp: row.hp,
@@ -236,10 +238,14 @@ export class PlayerPersistencePostgres {
       mp: row.mp,
       maxMp: row.max_mp,
       gold: row.gold,
-      buffs: row.buffs || [],
-      debuffs: row.debuffs || [],
+      buffs: row.buffs || {},
+      debuffs: row.debuffs || {},
       abilityCooldowns,
       inventory: row.inventory || [],
+      equipment: {},
+      abilities: [],
+      questLog: [],
+      flags: {},
       lastActivity: new Date(row.last_activity).getTime(),
       lastGcd: row.last_gcd || 0
     };

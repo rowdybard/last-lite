@@ -1,4 +1,4 @@
-import { Ability, CharacterClassEnum, AbilityTypeEnum, AbilityEffectEnum } from '../shared/types';
+import { Ability, CharacterClass, CharacterClassEnum, AbilityTypeEnum, AbilityEffectEnum } from '../shared/types';
 
 export const ABILITIES: Ability[] = [
   // Warrior Abilities
@@ -44,10 +44,10 @@ export const ABILITIES: Ability[] = [
     power: 8,
   },
 
-  // Ranger Abilities
+  // Rogue Abilities (using Rogue instead of Ranger)
   {
     id: 'Quickshot',
-    class: CharacterClass.Ranger,
+    class: CharacterClassEnum.Rogue,
     gcd: 1.0,
     cd: 0,
     cost: 0,
@@ -57,7 +57,7 @@ export const ABILITIES: Ability[] = [
   },
   {
     id: 'Roll',
-    class: CharacterClass.Ranger,
+    class: CharacterClassEnum.Rogue,
     gcd: 1.0,
     cd: 6.0,
     cost: 5,
@@ -68,7 +68,7 @@ export const ABILITIES: Ability[] = [
   },
   {
     id: 'Multi-shot',
-    class: CharacterClass.Ranger,
+    class: CharacterClassEnum.Rogue,
     gcd: 1.0,
     cd: 10.0,
     cost: 12,
@@ -78,7 +78,7 @@ export const ABILITIES: Ability[] = [
   },
   {
     id: 'Snare',
-    class: CharacterClass.Ranger,
+    class: CharacterClassEnum.Rogue,
     gcd: 1.0,
     cd: 8.0,
     cost: 8,

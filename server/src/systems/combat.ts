@@ -17,18 +17,20 @@ export class CombatSystem {
     const currentTime = this.now();
 
     // Check GCD
-    if (currentTime - player.lastGcd < ability.gcd * 1000) {
+    if (player.lastGcd && ability.gcd && currentTime - player.lastGcd < ability.gcd * 1000) {
       return { success: false, reason: 'GCD' };
     }
 
     // Check ability cooldown
-    const lastCast = player.abilityCooldowns[ability.id];
-    if (lastCast && currentTime - lastCast < ability.cd * 1000) {
-      return { success: false, reason: 'Cooldown' };
+    if (player.abilityCooldowns && ability.cd) {
+      const lastCast = player.abilityCooldowns[ability.id];
+      if (lastCast && currentTime - lastCast < ability.cd * 1000) {
+        return { success: false, reason: 'Cooldown' };
+      }
     }
 
     // Check resource requirements
-    if (player.mp < ability.cost) {
+    if (ability.cost && player.mp < ability.cost) {
       return { success: false, reason: 'Insufficient resources' };
     }
 
@@ -48,18 +50,24 @@ export class CombatSystem {
 
   private executeCast(player: Player, ability: Ability, target: Entity | null, currentTime: number): void {
     // Update GCD
-    player.lastGcd = currentTime;
+    if (ability.gcd) {
+      player.lastGcd = currentTime;
+    }
 
     // Update ability cooldown
-    player.abilityCooldowns[ability.id] = currentTime;
+    if (player.abilityCooldowns && ability.cd) {
+      player.abilityCooldowns[ability.id] = currentTime;
+    }
 
     // Consume resources
-    player.mp = Math.max(0, player.mp - ability.cost);
+    if (ability.cost) {
+      player.mp = Math.max(0, player.mp - ability.cost);
+    }
   }
 
   calculateDamage(attacker: Player, ability: Ability, target: Entity): number {
     // Base damage from ability power
-    let damage = ability.power;
+    let damage = ability.power || 0;
 
     // Add level scaling
     damage += attacker.level;
@@ -91,19 +99,21 @@ export class CombatSystem {
     // Add damage event
     events.push({
       at: this.now(),
-      type: CombatEventType.Damage,
-      srcId: 'system',
-      dstId: target.id,
-      amount: actualDamage,
+      type: 'damage' as CombatEventType,
+      source: 'system',
+      target: target.id,
+      damage: actualDamage,
+      timestamp: this.now(),
     });
 
     // Add death event if target died
     if (target.hp <= 0) {
       events.push({
         at: this.now(),
-        type: CombatEventType.Death,
-        srcId: 'system',
-        dstId: target.id,
+        type: 'death' as CombatEventType,
+        source: 'system',
+        target: target.id,
+        timestamp: this.now(),
       });
     }
   }

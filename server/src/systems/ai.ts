@@ -32,7 +32,8 @@ export class AISystem {
     }
 
     // State machine
-    switch (entity.aiState.current) {
+    const currentState = typeof entity.aiState === 'string' ? entity.aiState : entity.aiState.current;
+    switch (currentState) {
       case 'idle':
         this.handleIdle(entity, nearestPlayer, distanceToPlayer);
         break;
@@ -70,17 +71,17 @@ export class AISystem {
 
   private handleIdle(entity: Entity, player: Player, distance: number): void {
     if (distance <= this.AGGRO_RADIUS) {
-      entity.aiState = { current: 'alert', lastUpdate: Date.now() };
+      entity.aiState = { current: 'alert', lastUpdate: Date.now() } as AIState;
     }
   }
 
   private handleAlert(entity: Entity, player: Player, distance: number): void {
     if (distance > this.AGGRO_RADIUS) {
-      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() } as AIState;
     } else if (distance <= this.MELEE_RANGE) {
-      entity.aiState = { current: 'attack', lastUpdate: Date.now() };
+      entity.aiState = { current: 'attack', lastUpdate: Date.now() } as AIState;
     } else {
-      entity.aiState = { current: 'chase', lastUpdate: Date.now() };
+      entity.aiState = { current: 'chase', lastUpdate: Date.now() } as AIState;
     }
   }
 
@@ -89,15 +90,15 @@ export class AISystem {
     if (entity.leashDistance && entity.spawnPos) {
       const distanceToSpawn = this.calculateDistance(entity.pos, entity.spawnPos);
       if (distanceToSpawn > entity.leashDistance) {
-        entity.aiState = { current: 'reset', lastUpdate: Date.now() };
+        entity.aiState = { current: 'reset', lastUpdate: Date.now() } as AIState;
         return;
       }
     }
 
     if (distance > this.AGGRO_RADIUS) {
-      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() } as AIState;
     } else if (distance <= this.MELEE_RANGE) {
-      entity.aiState = { current: 'attack', lastUpdate: Date.now() };
+      entity.aiState = { current: 'attack', lastUpdate: Date.now() } as AIState;
     } else {
       // Move towards player
       this.moveTowards(entity, player.pos, deltaTime);
@@ -106,14 +107,14 @@ export class AISystem {
 
   private handleAttack(entity: Entity, player: Player, distance: number): void {
     if (distance > this.MELEE_RANGE) {
-      entity.aiState = { current: 'chase', lastUpdate: Date.now() };
+      entity.aiState = { current: 'chase', lastUpdate: Date.now() } as AIState;
     }
     // In a real implementation, this would trigger attack animations and damage
   }
 
   private handleReset(entity: Entity, deltaTime: number): void {
     if (!entity.spawnPos) {
-      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() } as AIState;
       return;
     }
 
@@ -122,7 +123,7 @@ export class AISystem {
     if (distanceToSpawn < 0.5) {
       // Reached spawn, reset HP and go to idle
       entity.hp = entity.maxHp;
-      entity.aiState = { current: 'idle', lastUpdate: Date.now() };
+      entity.aiState = { current: 'idle', lastUpdate: Date.now() } as AIState;
     } else {
       // Move towards spawn
       this.moveTowards(entity, entity.spawnPos, deltaTime);
@@ -130,13 +131,14 @@ export class AISystem {
   }
 
   private handleLeash(entity: Entity, deltaTime: number): void {
-    entity.aiState = { current: 'reset', lastUpdate: Date.now() };
+    entity.aiState = { current: 'reset', lastUpdate: Date.now() } as AIState;
     this.handleReset(entity, deltaTime);
   }
 
   private handleNoPlayers(entity: Entity, deltaTime: number): void {
-    if (entity.aiState.current !== 'idle' && entity.spawnPos) {
-      entity.aiState = { current: 'reset', lastUpdate: Date.now() };
+    const currentState = typeof entity.aiState === 'string' ? entity.aiState : entity.aiState.current;
+    if (currentState !== 'idle' && entity.spawnPos) {
+      entity.aiState = { current: 'reset', lastUpdate: Date.now() } as AIState;
       this.handleReset(entity, deltaTime);
     }
   }

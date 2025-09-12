@@ -1,4 +1,4 @@
-import { Player, Rarity } from '../shared/types';
+import { Player, Rarity, RarityEnum } from '../shared/types';
 import { InventorySystem, InventoryItem } from './inventory';
 
 export interface VendorResult {
@@ -88,7 +88,7 @@ export class VendorSystem {
         id: 'health_potion',
         name: 'Health Potion',
         type: 'consumable',
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 1,
         quantity: 1,
         value: 50
@@ -97,7 +97,7 @@ export class VendorSystem {
         id: 'mana_potion',
         name: 'Mana Potion',
         type: 'consumable',
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 1,
         quantity: 1,
         value: 50
@@ -106,7 +106,7 @@ export class VendorSystem {
         id: 'greater_health_potion',
         name: 'Greater Health Potion',
         type: 'consumable',
-        rarity: Rarity.Uncommon,
+        rarity: RarityEnum.uncommon,
         level: 5,
         quantity: 1,
         value: 150
@@ -117,7 +117,7 @@ export class VendorSystem {
         id: 'iron_sword',
         name: 'Iron Sword',
         type: 'weapon',
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 1,
         quantity: 1,
         value: 200
@@ -126,7 +126,7 @@ export class VendorSystem {
         id: 'steel_sword',
         name: 'Steel Sword',
         type: 'weapon',
-        rarity: Rarity.Uncommon,
+        rarity: RarityEnum.uncommon,
         level: 5,
         quantity: 1,
         value: 500
@@ -135,7 +135,7 @@ export class VendorSystem {
         id: 'enchanted_sword',
         name: 'Enchanted Sword',
         type: 'weapon',
-        rarity: Rarity.Rare,
+        rarity: RarityEnum.rare,
         level: 10,
         quantity: 1,
         value: 1200
@@ -146,7 +146,7 @@ export class VendorSystem {
         id: 'leather_armor',
         name: 'Leather Armor',
         type: 'armor',
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 2,
         quantity: 1,
         value: 300
@@ -155,7 +155,7 @@ export class VendorSystem {
         id: 'chain_mail',
         name: 'Chain Mail',
         type: 'armor',
-        rarity: Rarity.Uncommon,
+        rarity: RarityEnum.uncommon,
         level: 6,
         quantity: 1,
         value: 800
@@ -164,7 +164,7 @@ export class VendorSystem {
         id: 'plate_armor',
         name: 'Plate Armor',
         type: 'armor',
-        rarity: Rarity.Rare,
+        rarity: RarityEnum.rare,
         level: 12,
         quantity: 1,
         value: 2000
@@ -175,7 +175,7 @@ export class VendorSystem {
         id: 'magic_ring',
         name: 'Magic Ring',
         type: 'accessory',
-        rarity: Rarity.Uncommon,
+        rarity: RarityEnum.uncommon,
         level: 3,
         quantity: 1,
         value: 400
@@ -184,7 +184,7 @@ export class VendorSystem {
         id: 'power_amulet',
         name: 'Power Amulet',
         type: 'accessory',
-        rarity: Rarity.Rare,
+        rarity: RarityEnum.rare,
         level: 8,
         quantity: 1,
         value: 1000
@@ -195,7 +195,7 @@ export class VendorSystem {
         id: 'lockpick',
         name: 'Lockpick',
         type: 'tool',
-        rarity: Rarity.Common,
+        rarity: RarityEnum.common,
         level: 1,
         quantity: 1,
         value: 25
@@ -204,7 +204,7 @@ export class VendorSystem {
         id: 'master_key',
         name: 'Master Key',
         type: 'tool',
-        rarity: Rarity.Rare,
+        rarity: RarityEnum.rare,
         level: 15,
         quantity: 1,
         value: 5000
