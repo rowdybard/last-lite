@@ -13,7 +13,7 @@ services:
       cd server && npm ci && npm run build
       
       echo "=== Building client ==="
-      cd ../client && npm ci && npm run build
+      cd ../client && rm -rf node_modules package-lock.json && npm install && npm install @rollup/rollup-linux-x64-gnu --save-optional && npm run build
       
       echo "=== Copying HTML files to dist ==="
       mkdir -p client/dist
