@@ -1,4 +1,4 @@
-import { Ability, CharacterClass, CharacterClassEnum, AbilityTypeEnum, AbilityEffectEnum } from '../shared/types';
+import { Ability, CharacterClass, CharacterClassEnum, AbilityTypeEnum, AbilityEffectEnum } from '../shared/types.js';
 
 export const ABILITIES: Ability[] = [
   // Warrior Abilities

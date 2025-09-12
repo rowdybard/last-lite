@@ -1,4 +1,4 @@
-import { Entity, Player, Drop, Rarity, RarityEnum } from '../shared/types';
+import { Entity, Player, Drop, Rarity, RarityEnum } from '../shared/types.js';
 
 export interface LootDrop {
   id: string;

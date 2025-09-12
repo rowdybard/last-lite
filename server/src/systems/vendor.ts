@@ -1,4 +1,4 @@
-import { Player, Rarity, RarityEnum } from '../shared/types';
+import { Player, Rarity, RarityEnum } from '../shared/types.js';
 import { InventorySystem, InventoryItem } from './inventory';
 
 export interface VendorResult {

@@ -1,4 +1,4 @@
-import { Player } from '../shared/types';
+import { Player } from '../shared/types.js';
 import { DatabaseConnection } from '../database/config';
 
 export interface PersistenceResult {

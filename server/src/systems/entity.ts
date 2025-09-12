@@ -1,4 +1,4 @@
-import { Entity, AIState, Position, EntityType } from '../shared/types';
+import { Entity, AIState, Position, EntityType } from '../shared/types.js';
 
 export interface EntitySpawnData {
   id: string;

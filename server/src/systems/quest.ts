@@ -1,4 +1,4 @@
-import { Player, Quest, QuestState, QuestStep, QuestObjective, QuestReward } from '../shared/types';
+import { Player, Quest, QuestState, QuestStep, QuestObjective, QuestReward } from '../shared/types.js';
 
 export interface QuestProgress {
   questId: string;

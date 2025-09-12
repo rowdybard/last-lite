@@ -1,4 +1,4 @@
-import { Player, EntityType } from '../shared/types';
+import { Player, EntityType } from '../shared/types.js';
 
 export interface DungeonInstance {
   id: string;

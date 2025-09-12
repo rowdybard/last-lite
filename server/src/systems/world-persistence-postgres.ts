@@ -1,4 +1,4 @@
-import { Entity, EntityType, EntityTypeEnum, AIState } from '../shared/types';
+import { Entity, EntityType, EntityTypeEnum, AIState } from '../shared/types.js';
 import { DatabaseConnection } from '../database/config';
 
 export interface WorldPersistenceResult {

@@ -1,4 +1,4 @@
-import { Player, Position, Velocity } from '../shared/types';
+import { Player, Position, Velocity } from '../shared/types.js';
 
 export enum PetType {
   Wolf = 'wolf',

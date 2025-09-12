@@ -1,4 +1,4 @@
-import { Entity, EntityType, EntityTypeEnum } from '../shared/types';
+import { Entity, EntityType, EntityTypeEnum } from '../shared/types.js';
 
 export interface WorldPersistenceResult {
   success: boolean;
