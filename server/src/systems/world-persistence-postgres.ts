@@ -1,5 +1,5 @@
 import { Entity, EntityType, EntityTypeEnum, AIState } from '../shared/types.js';
-import { DatabaseConnection } from '../database/config';
+import { DatabaseConnection } from '../database/config.js';
 
 export interface WorldPersistenceResult {
   success: boolean;

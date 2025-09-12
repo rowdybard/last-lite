@@ -1,5 +1,5 @@
 import { Player } from '../shared/types.js';
-import { DatabaseConnection } from '../database/config';
+import { DatabaseConnection } from '../database/config.js';
 
 export interface PersistenceResult {
   success: boolean;

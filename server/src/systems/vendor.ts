@@ -1,5 +1,5 @@
 import { Player, Rarity, RarityEnum } from '../shared/types.js';
-import { InventorySystem, InventoryItem } from './inventory';
+import { InventorySystem, InventoryItem } from './inventory.js';
 
 export interface VendorResult {
   success: boolean;
