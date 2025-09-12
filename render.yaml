@@ -24,7 +24,7 @@ services:
       echo "Client dist contents:"
       ls -la client/dist/
       echo "=== Build complete ==="
-    startCommand: cd server && node dist/socket-main.js
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
         value: production
