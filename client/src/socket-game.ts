@@ -39,40 +39,40 @@ export class SocketGameClient {
       this.connectToHub();
     });
 
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', (reason: string) => {
       console.log('Disconnected from server:', reason);
       this.isConnected = false;
       this.handleDisconnection();
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', (error: Error) => {
       console.error('Connection error:', error);
       this.isConnected = false;
       this.handleConnectionError();
     });
 
-    this.socket.on('state', (state) => {
+    this.socket.on('state', (state: any) => {
       console.log('Received game state:', state);
       this.gameState = state;
       this.updateUI();
     });
 
-    this.socket.on('message', (message) => {
+    this.socket.on('message', (message: any) => {
       console.log('Received message:', message);
       this.addToWorldFeed(message.text);
     });
 
-    this.socket.on('player_joined', (data) => {
+    this.socket.on('player_joined', (data: any) => {
       console.log('Player joined:', data);
       this.addToWorldFeed(`${data.playerName} joined the game`);
     });
 
-    this.socket.on('player_left', (data) => {
+    this.socket.on('player_left', (data: any) => {
       console.log('Player left:', data);
       this.addToWorldFeed('A player left the game');
     });
 
-    this.socket.on('error', (error) => {
+    this.socket.on('error', (error: Error) => {
       console.error('Server error:', error);
       this.addToWorldFeed(`Error: ${error.message || 'Unknown error'}`);
     });
