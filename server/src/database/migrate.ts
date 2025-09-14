@@ -1,6 +1,10 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
-import { DatabaseConnection } from './config';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { DatabaseConnection } from './config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class DatabaseMigrator {
   private db: DatabaseConnection;

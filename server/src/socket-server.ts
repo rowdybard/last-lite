@@ -2,6 +2,10 @@ import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { WorldState, Player, Entity, Drop, Ability, CharacterClass } from './shared/types.js';
 import { UserService } from './services/user-service.js';
 import { DatabaseConnection } from './database/config.js';
