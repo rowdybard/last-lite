@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -312,8 +313,6 @@ export class SocketGameServer {
 
   private getEmbeddedGameHtml_DEPRECATED(): string {
     // Use the working polished-game.html content
-    const fs = require('fs');
-    const path = require('path');
     const gamePath = path.join(process.cwd(), 'client/src/polished-game.html');
     
     if (fs.existsSync(gamePath)) {
@@ -512,7 +511,6 @@ export class SocketGameServer {
     console.log('Current working directory:', process.cwd());
     
     // Check if client dist directory exists
-    const fs = require('fs');
     if (fs.existsSync(clientDistPath)) {
       console.log('✅ Client dist directory exists');
       const files = fs.readdirSync(clientDistPath);
