@@ -4,6 +4,8 @@ export interface CastResult {
   success: boolean;
   reason?: string;
   damage?: number;
+  isCrit?: boolean;
+  isDodge?: boolean;
 }
 
 export class CombatSystem {
@@ -43,9 +45,24 @@ export class CombatSystem {
     this.executeCast(player, ability, target, currentTime);
 
     // Calculate damage if target exists
-    const damage = target ? this.calculateDamage(player, ability, target) : 0;
+    if (target) {
+      // 1. Check for Dodge (10% chance)
+      const dodgeChance = 0.1;
+      if (Math.random() < dodgeChance) {
+         return { success: true, damage: 0, isDodge: true };
+      }
 
-    return { success: true, damage };
+      // 2. Calculate Damage & Crit
+      const { damage, isCrit } = this.calculateDamage(player, ability, target);
+      
+      // Apply the damage to the target entity
+      // (Note: In a full system, you would call this.applyDamage here or in the server loop)
+      // For now, we return the values so the server can broadcast them.
+      
+      return { success: true, damage, isCrit };
+    }
+
+    return { success: true, damage: 0 };
   }
 
   private executeCast(player: Player, ability: Ability, target: Entity | null, currentTime: number): void {
@@ -65,7 +82,7 @@ export class CombatSystem {
     }
   }
 
-  calculateDamage(attacker: Player, ability: Ability, target: Entity): number {
+  calculateDamage(attacker: Player, ability: Ability, target: Entity): { damage: number, isCrit: boolean } {
     // Base damage from ability power
     let damage = ability.power || 0;
 
@@ -78,18 +95,28 @@ export class CombatSystem {
         damage *= 1.1; // Warriors do 10% more damage
         break;
       case 'Ranger':
-        damage *= 1.0; // Rangers do base damage
+        damage *= 1.0; // Rangers rely on crit (handled below)
         break;
       case 'Mage':
         damage *= 1.2; // Mages do 20% more damage
         break;
     }
 
+    // Crit Logic
+    // Base 5% crit chance, Rangers get +10% (15% total)
+    let critChance = 0.05;
+    if (attacker.class === 'Ranger') critChance += 0.10;
+
+    const isCrit = Math.random() < critChance;
+    if (isCrit) {
+      damage *= 2.0; // Double damage!
+    }
+
     // Add some randomness (±10%)
     const randomFactor = 0.9 + Math.random() * 0.2;
     damage *= randomFactor;
 
-    return Math.floor(damage);
+    return { damage: Math.floor(damage), isCrit };
   }
 
   applyDamage(target: Entity, damage: number, events: CombatEvent[]): void {
