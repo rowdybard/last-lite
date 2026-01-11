@@ -1026,6 +1026,37 @@
 
         // Update party list
         updatePartyList();
+        document.addEventListener('keydown', function(e) {
+        // Ignore if user is typing in the command box
+        if (document.activeElement === document.getElementById('command-input')) return;
+        if (document.activeElement === document.getElementById('invite-player-input')) return;
+
+        const key = e.key.toLowerCase();
+        
+        switch(key) {
+            case 'w':
+            case 'arrowup':
+                sendCommand('move north');
+                break;
+            case 's':
+            case 'arrowdown':
+                sendCommand('move south');
+                break;
+            case 'a':
+            case 'arrowleft':
+                sendCommand('move west');
+                break;
+            case 'd':
+            case 'arrowright':
+                sendCommand('move east');
+                break;
+        }
+    });
+
+    // Auto-connect on page load
+    window.onload = () => {
+        // ... existing onload code ...
+    };
     </script>
 </body>
 </html>
