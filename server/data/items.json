@@ -4,5 +4,6 @@
   { "id": "itm_meadow_sprig", "name": "Meadow Sprig", "type": "material", "desc": "Fragrant herb.", "stack": 99, "baseValue": 2 },
   { "id": "itm_focus_brew", "name": "Focus Brew", "type": "consumable", "desc": "Sharpened senses for a short while.", "stack": 5, "baseValue": 12 },
   { "id": "itm_rusted_dagger", "name": "Rusted Dagger", "type": "weapon", "desc": "Better than nothing.", "stack": 1, "baseValue": 9 },
-  { "id": "itm_leather_cap", "name": "Leather Cap", "type": "armor", "desc": "Scuffed but serviceable.", "stack": 1, "baseValue": 11 }
+  { "id": "itm_leather_cap", "name": "Leather Cap", "type": "armor", "desc": "Scuffed but serviceable.", "stack": 1, "baseValue": 11 },
+  { "id": "itm_void_blade", "name": "Void Blade", "type": "weapon", "desc": "A blade that hums with dark energy. Extremely rare.", "stack": 1, "baseValue": 500, "rarity": "Legendary" }
 ]
